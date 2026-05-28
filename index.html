@@ -1688,13 +1688,13 @@
 
       const flavorChips = selectedFlavors.map(n => {
         const f = FLAVORS.find(fl => fl.name === n);
-        return `<div style="display:inline-flex;align-items:center;gap:4px;background:${theme.chipBg};border:1.5px solid ${theme.chipBorder};border-radius:50px;padding:3px 8px 3px 3px;font-size:clamp(8px,1.8vw,12px);font-weight:700;color:${theme.textColor};backdrop-filter:blur(4px);white-space:nowrap;">
-          <img src="${f ? f.img : ''}" style="width:clamp(14px,2.5vw,22px);height:clamp(14px,2.5vw,22px);border-radius:50%;object-fit:cover;object-position:center top;flex-shrink:0;background:#f0f0f0;" onerror="this.style.display='none'" />${n}</div>`;
+        return `<div style="display:inline-flex;align-items:center;gap:0.5vw;background:${theme.chipBg};border:1.5px solid ${theme.chipBorder};border-radius:50px;padding:0.4vw 1.2vw 0.4vw 0.4vw;font-size:1.8vw;font-weight:700;color:${theme.textColor};backdrop-filter:blur(4px);white-space:nowrap;">
+          <img src="${f ? f.img : ''}" style="width:2.8vw;height:2.8vw;border-radius:50%;object-fit:cover;object-position:center top;flex-shrink:0;background:#f0f0f0;" onerror="this.style.display='none'" />${n}</div>`;
       }).join('');
 
       const paletteCircles = selectedFlavors.map(n => {
         const f = FLAVORS.find(fl => fl.name === n);
-        return `<div style="width:clamp(22px,4vw,34px);height:clamp(22px,4vw,34px);border-radius:50%;overflow:hidden;border:2px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.15);flex-shrink:0;">
+        return `<div style="width:4vw;height:4vw;border-radius:50%;overflow:hidden;border:2px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.15);flex-shrink:0;">
           <img src="${f ? f.img : ''}" style="width:100%;height:100%;object-fit:cover;object-position:center top;" onerror="this.parentElement.style.background='${f ? f.color : '#eee'}';this.style.display='none'" /></div>`;
       }).join('');
 
@@ -1729,33 +1729,34 @@
             style="width:100%;display:block;border-radius:20px;box-shadow:0 20px 60px rgba(0,0,0,0.15);" />
           <div style="position:absolute;inset:0;border-radius:20px;overflow:hidden;">
 
-            <!-- ① 선택한 맛 (상단 좌측 넓은 박스) top:19% left:3.5% width:65% -->
+            <!-- ① 선택한 맛 -->
             <div style="position:absolute;top:19%;left:3.5%;width:64%;height:13%;
-              display:flex;flex-wrap:wrap;gap:4px;align-items:center;padding:4px 8px;
+              display:flex;flex-wrap:wrap;gap:1%;align-items:center;padding:1% 2%;
               overflow:hidden;">
               ${flavorChips}
             </div>
 
-            <!-- ② 팔레트 + 조합 이름 (우측 상단 박스) top:19% right:2.5% width:28% -->
+            <!-- ② 팔레트 + 조합 이름 -->
             <div style="position:absolute;top:19%;right:2.5%;width:28%;
-              display:flex;flex-direction:column;gap:6px;padding:8px 10px;">
-              <div style="display:flex;gap:4px;flex-wrap:wrap;">${paletteCircles}</div>
-              <div style="font-family:'Black Han Sans',sans-serif;font-size:clamp(10px,2vw,20px);
-                color:${theme.textColor};line-height:1.2;word-break:keep-all;">${name}</div>
+              display:flex;flex-direction:column;gap:4%;padding:3% 3%;">
+              <div style="display:flex;gap:3%;flex-wrap:wrap;">${paletteCircles}</div>
+              <div style="font-family:'Black Han Sans',sans-serif;font-size:2.8vw;
+                color:${theme.textColor};line-height:1.2;word-break:keep-all;
+                overflow:hidden;max-height:5vw;">${name}</div>
             </div>
 
-            <!-- ③ 나의 맛 무드 (우측 중단 박스) top:52% right:2.5% width:28% -->
-            <div style="position:absolute;top:52%;right:2.5%;width:28%;padding:8px 10px;">
-              <div style="font-size:clamp(10px,1.7vw,17px);font-weight:700;color:${theme.textColor};
-                display:flex;align-items:center;gap:4px;flex-wrap:wrap;">
+            <!-- ③ 나의 맛 무드 -->
+            <div style="position:absolute;top:52%;right:2.5%;width:28%;padding:3% 3%;">
+              <div style="font-size:2.6vw;font-weight:700;color:${theme.textColor};
+                display:flex;align-items:center;gap:4%;flex-wrap:wrap;">
                 ${moodEmoji[selectedMood]} ${selectedMood}
               </div>
             </div>
 
-            <!-- ④ 중앙 노트 메모 (점선 위 빈 공간) top:50% left:34% width:37% -->
-            <div style="position:absolute;top:50%;left:34%;width:37%;
-              display:flex;align-items:center;justify-content:center;padding:6px 8px;">
-              <div style="font-size:clamp(9px,1.4vw,14px);color:${theme.textColor};
+            <!-- ④ 메모 -->
+            <div style="position:absolute;top:52%;left:34%;width:37%;
+              display:flex;align-items:center;justify-content:center;padding:2% 2%;">
+              <div style="font-size:2.2vw;color:${theme.textColor};
                 opacity:0.75;text-align:center;line-height:1.6;word-break:keep-all;">
                 ${memoText}
               </div>
