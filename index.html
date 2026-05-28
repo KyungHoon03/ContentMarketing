@@ -989,13 +989,14 @@
 
       .mascot-wrap-left,
       .mascot-wrap-right {
-        position: absolute;
+        position: fixed;
         bottom: 0;
-        z-index: 10;
+        z-index: 50;
+        pointer-events: none;
       }
 
-      .mascot-wrap-left { left: calc(50% - 480px); }
-      .mascot-wrap-right { right: calc(50% - 480px); }
+      .mascot-wrap-left { left: 12px; }
+      .mascot-wrap-right { right: 12px; }
 
       /* mascot-left / mascot-right 기존 absolute 포지셔닝 오버라이드 */
       .mascot-wrap-left .mascot-left,
@@ -1024,16 +1025,16 @@
       }
 
       @media (max-width: 1100px) {
-        .mascot-wrap-left { left: -20px; }
-        .mascot-wrap-right { right: -20px; }
+        .mascot-wrap-left { left: 0px; }
+        .mascot-wrap-right { right: 0px; }
         .mascot-wrap-left .mascot-left,
         .mascot-wrap-right .mascot-right { width: 140px; opacity: 0.7; }
       }
       @media (max-width: 700px) {
-        .mascot-wrap-left { left: 12px; }
-        .mascot-wrap-right { right: 12px; }
+        .mascot-wrap-left { left: 0px; }
+        .mascot-wrap-right { right: 0px; }
         .mascot-wrap-left .mascot-left,
-        .mascot-wrap-right .mascot-right { width: 95px; opacity: 0.9; }
+        .mascot-wrap-right .mascot-right { width: 80px; opacity: 0.9; }
       }
 
       .speech-bubble {
@@ -1175,16 +1176,6 @@
         </div>
 
         <!-- Mascot Characters -->
-        <!-- ★ 왼쪽 캐릭터 이미지: 기본 베라.png 경로로 교체하세요 -->
-        <div class="mascot-wrap mascot-wrap-left">
-          <div class="speech-bubble bubble-left" id="bubble-left"></div>
-          <img class="mascot-left" src="./basic-vera.png" alt="스쿱 마스코트 기본" onclick="showMascotBubble('left')" />
-        </div>
-        <!-- ★ 오른쪽 캐릭터 이미지: 입벌린 베라.png 경로로 교체하세요 -->
-        <div class="mascot-wrap mascot-wrap-right">
-          <div class="speech-bubble bubble-right" id="bubble-right"></div>
-          <img class="mascot-right" src="./smile-vera.png" alt="스쿱 마스코트 웃음" onclick="showMascotBubble('right')" />
-        </div>
       </div>
     </div>
 
@@ -1269,6 +1260,19 @@
 
     <!-- TOAST -->
     <div class="toast" id="toast"></div>
+
+    <!-- ===== MASCOT CHARACTERS (fixed to viewport) ===== -->
+    <div class="mascot-wrap mascot-wrap-left">
+      <div class="speech-bubble bubble-left" id="bubble-left"></div>
+      <img class="mascot-left" src="./basic-vera.png" alt="스쿱 마스코트 기본" onclick="showMascotBubble('left')" style="pointer-events:auto;cursor:pointer;" />
+    </div>
+    <div class="mascot-wrap mascot-wrap-right">
+      <div class="speech-bubble bubble-right" id="bubble-right"></div>
+      <img class="mascot-right" src="./smile-vera.png" alt="스쿱 마스코트 웃음" onclick="showMascotBubble('right')" style="pointer-events:auto;cursor:pointer;" />
+    </div>
+
+    <!-- html2canvas -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <script>
     // ===== DATA =====
@@ -1577,8 +1581,8 @@
 
           </div>
           <div class="share-section">
-            <button class="share-btn share-instagram" onclick="shareResult('instagram')">
-              📸 인스타 공유
+            <button class="share-btn share-instagram" onclick="saveResultCard()">
+              💾 카드 저장
             </button>
             <button class="share-btn share-copy" onclick="shareResult('copy')">
               🔗 링크 복사
@@ -1596,11 +1600,35 @@
 
     function shareResult(type) {
       if (type === 'copy') {
-        navigator.clipboard.writeText('https://br-flavor.co.kr/test').catch(() => {});
+        navigator.clipboard.writeText(location.href).catch(() => {});
         showToast('🔗 링크가 복사되었어요!');
-      } else {
-        showToast('📸 카드 이미지를 저장하세요!');
       }
+    }
+
+    function saveResultCard() {
+      const card = document.querySelector('.result-card');
+      if (!card) return;
+      showToast('💾 저장 중...');
+      html2canvas(card, { useCORS: true, scale: 2, backgroundColor: null }).then(canvas => {
+        const a = document.createElement('a');
+        a.download = '나의_맛_유형_카드.png';
+        a.href = canvas.toDataURL('image/png');
+        a.click();
+        showToast('✅ 카드가 저장되었어요!');
+      }).catch(() => showToast('❌ 저장에 실패했어요'));
+    }
+
+    function saveComboCard() {
+      const card = document.getElementById('combo-result');
+      if (!card) return;
+      showToast('💾 저장 중...');
+      html2canvas(card, { useCORS: true, scale: 2, backgroundColor: null }).then(canvas => {
+        const a = document.createElement('a');
+        a.download = '나만의_31_조합카드.png';
+        a.href = canvas.toDataURL('image/png');
+        a.click();
+        showToast('✅ 카드가 저장되었어요!');
+      }).catch(() => showToast('❌ 저장에 실패했어요'));
     }
 
     // ===== COMBO =====
@@ -1765,13 +1793,13 @@
           </div>
           <!-- 버튼 -->
           <div style="display:flex;justify-content:center;gap:12px;margin-top:20px;">
-            <button onclick="showToast('🔗 조합 링크 복사됨!')"
+            <button onclick="saveComboCard()"
               style="display:inline-flex;align-items:center;gap:8px;padding:13px 26px;
                 background:${theme.btnBg};color:white;border:none;border-radius:50px;
                 font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:700;cursor:pointer;
                 box-shadow:0 8px 24px ${theme.btnBg}66;transition:transform 0.2s;"
               onmouseover="this.style.transform='translateY(-3px)'"
-              onmouseout="this.style.transform='translateY(0)'">🔗 공유하기</button>
+              onmouseout="this.style.transform='translateY(0)'">💾 카드 저장</button>
             <button onclick="initCombo()"
               style="display:inline-flex;align-items:center;gap:8px;padding:13px 26px;
                 background:white;color:${theme.textColor};border:2px solid ${theme.chipBorder};
