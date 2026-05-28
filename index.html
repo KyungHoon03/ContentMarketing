@@ -7,14 +7,14 @@
 <link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
 <style>
   :root {
-    --br-pink: #F2557A;
+    --br-pink: #df7781 ; /*Fedadd*/
     --br-blue: #4B9EF5;
     --br-mint: #5ECFB1;
     --br-yellow: #FFD951;
     --br-orange: #FF8C42;
     --br-purple: #9B6FD4;
-    --br-cream: #FFF8F0;
-    --br-dark: #1A1A2E;
+    --br-cream: #FFF8F0; /*FFF8F0*/
+    --br-dark: #906b4c ;  /*1A1A2E*/
     --br-text: #2D2D2D;
     --card-radius: 28px;
     --transition: cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -893,6 +893,53 @@
     .flavor-grid { grid-template-columns: repeat(2, 1fr); }
     .rank-bar-wrapper { display: none; }
   }
+
+  /* ===== MASCOT CHARACTERS ===== */
+  .mascot-left, .mascot-right {
+    position: absolute;
+    bottom: 0;
+    width: 200px;
+    pointer-events: none;
+    animation: mascotFloat 4s ease-in-out infinite;
+    filter: drop-shadow(0 16px 32px rgba(242,85,122,0.25));
+    z-index: 10;
+  }
+
+  .mascot-left {
+    left: calc(50% - 480px);
+    animation-delay: 0s;
+    transform-origin: bottom center;
+  }
+
+  .mascot-right {
+    right: calc(50% - 480px);
+    animation-delay: 1.5s;
+    transform-origin: bottom center;
+  }
+
+  @keyframes mascotFloat {
+    0%, 100% { transform: translateY(0px) rotate(-2deg); }
+    50% { transform: translateY(-18px) rotate(2deg); }
+  }
+
+  .mascot-right {
+    animation-name: mascotFloatRight;
+  }
+
+  @keyframes mascotFloatRight {
+    0%, 100% { transform: translateY(0px) rotate(2deg); }
+    50% { transform: translateY(-18px) rotate(-2deg); }
+  }
+
+  @media (max-width: 1100px) {
+    .mascot-left { left: -20px; width: 140px; opacity: 0.7; }
+    .mascot-right { right: -20px; width: 140px; opacity: 0.7; }
+  }
+
+  @media (max-width: 700px) {
+    .mascot-left, .mascot-right { display: none; }
+  }
+
 </style>
 </head>
 <body>
@@ -941,6 +988,12 @@
       <div class="flavor-pill"><div class="dot" style="background:#A8E6CF"></div>녹차</div>
       <div class="flavor-pill"><div class="dot" style="background:#DDA0DD"></div>블루베리</div>
     </div>
+
+    <!-- Mascot Characters -->
+    <!-- ★ 왼쪽 캐릭터 이미지: 기본 베라.png 경로로 교체하세요 -->
+    <img class="mascot-left" src="기본 베라.png" alt="스쿱 마스코트 기본" />
+    <!-- ★ 오른쪽 캐릭터 이미지: 입벌린 베라.png 경로로 교체하세요 -->
+    <img class="mascot-right" src="입벌린 베라.png" alt="스쿱 마스코트 웃음" />
   </div>
 </div>
 
