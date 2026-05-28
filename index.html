@@ -1113,12 +1113,30 @@
         .rank-percent { font-size: 12px; min-width: 32px; }
         .trending-badge { font-size: 9px; padding: 2px 6px; }
         .combo-result-card { padding: 20px 16px; }
-        .mascot-wrap-left,
-        .mascot-wrap-right {
-          left: 0;
-          right: 0;
-          bottom: 0;
-          padding: 0 8px;
+        @media (max-width: 600px) {
+          /* 기존 코드에서 이 부분을: */
+          .mascot-wrap-left,
+          .mascot-wrap-right {
+            left: 0;
+            right: 0;
+            bottom: 0;
+            padding: 0 8px;
+          }
+
+          /* 이렇게 분리하세요: */
+          .mascot-wrap-left {
+            left: 0;
+            right: auto;   /* ← 추가 */
+            bottom: 0;
+            padding: 0 8px;
+          }
+
+          .mascot-wrap-right {
+            right: 0;
+            left: auto;    /* ← 추가 */
+            bottom: 0;
+            padding: 0 8px;
+          }
         }
         .mascot-left,
         .mascot-right {
