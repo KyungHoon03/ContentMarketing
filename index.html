@@ -1,1531 +1,1531 @@
 <!DOCTYPE html>
 <html lang="ko">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>배스킨라빈스 × 취향 플랫폼 | 당신은 어떤 맛 유형인가요?</title>
-<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
-<style>
-  :root {
-    --br-pink: #df7781 ; /*Fedadd*/
-    --br-blue: #4B9EF5;
-    --br-mint: #5ECFB1;
-    --br-yellow: #FFD951;
-    --br-orange: #FF8C42;
-    --br-purple: #9B6FD4;
-    --br-cream: #FFF8F0; /*FFF8F0*/
-    --br-dark: #906b4c ;  /*1A1A2E*/
-    --br-text: #2D2D2D;
-    --card-radius: 28px;
-    --transition: cubic-bezier(0.34, 1.56, 0.64, 1);
-  }
-
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-
-  body {
-    font-family: 'Noto Sans KR', sans-serif;
-    background: var(--br-cream);
-    color: var(--br-text);
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
-
-  /* ===== NOISE TEXTURE OVERLAY ===== */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
-    pointer-events: none;
-    z-index: 9999;
-    opacity: 0.4;
-  }
-
-  /* ===== NAV ===== */
-  nav {
-    position: fixed;
-    top: 0; left: 0; right: 0;
-    z-index: 100;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 16px 32px;
-    background: rgba(255,248,240,0.85);
-    backdrop-filter: blur(12px);
-    border-bottom: 2px solid rgba(242,85,122,0.15);
-  }
-
-  .nav-logo {
-    font-family: 'Black Han Sans', sans-serif;
-    font-size: 20px;
-    color: var(--br-pink);
-    letter-spacing: -0.5px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .nav-logo span { font-size: 24px; }
-
-  .nav-tabs {
-    display: flex;
-    gap: 4px;
-    background: rgba(242,85,122,0.08);
-    padding: 4px;
-    border-radius: 50px;
-  }
-
-  .nav-tab {
-    padding: 8px 20px;
-    border-radius: 50px;
-    border: none;
-    background: transparent;
-    font-family: 'Noto Sans KR', sans-serif;
-    font-size: 13px;
-    font-weight: 500;
-    color: #888;
-    cursor: pointer;
-    transition: all 0.25s ease;
-    white-space: nowrap;
-  }
-
-  .nav-tab.active {
-    background: var(--br-pink);
-    color: white;
-    font-weight: 700;
-    box-shadow: 0 4px 12px rgba(242,85,122,0.35);
-  }
-
-  /* ===== PAGES ===== */
-  .page { display: none; min-height: 100vh; padding-top: 80px; }
-  .page.active { display: block; }
-
-  /* ===== HERO ===== */
-  .hero {
-    min-height: calc(100vh - 80px);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 40px 20px;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .hero-bg-circles {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-  }
-
-  .hero-circle {
-    position: absolute;
-    border-radius: 50%;
-    filter: blur(80px);
-    opacity: 0.3;
-    animation: floatCircle 8s ease-in-out infinite;
-  }
-
-  .hero-circle:nth-child(1) { width: 400px; height: 400px; background: var(--br-pink); top: -100px; right: -100px; animation-delay: 0s; }
-  .hero-circle:nth-child(2) { width: 300px; height: 300px; background: var(--br-blue); bottom: -50px; left: -80px; animation-delay: 2s; }
-  .hero-circle:nth-child(3) { width: 200px; height: 200px; background: var(--br-yellow); top: 50%; left: 40%; animation-delay: 4s; }
-
-  @keyframes floatCircle {
-    0%, 100% { transform: translateY(0px) scale(1); }
-    50% { transform: translateY(-30px) scale(1.05); }
-  }
-
-  .hero-badge {
-    background: var(--br-pink);
-    color: white;
-    padding: 6px 18px;
-    border-radius: 50px;
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 1px;
-    margin-bottom: 24px;
-    text-transform: uppercase;
-    animation: badgePop 0.6s var(--transition) both;
-  }
-
-  @keyframes badgePop {
-    from { opacity: 0; transform: scale(0.5) translateY(20px); }
-    to { opacity: 1; transform: scale(1) translateY(0); }
-  }
-
-  .hero-title {
-    font-family: 'Black Han Sans', sans-serif;
-    font-size: clamp(36px, 8vw, 80px);
-    line-height: 1.1;
-    text-align: center;
-    color: var(--br-dark);
-    margin-bottom: 20px;
-    animation: titleSlide 0.8s var(--transition) 0.2s both;
-  }
-
-  .hero-title .highlight {
-    color: var(--br-pink);
-    position: relative;
-    display: inline-block;
-  }
-
-  .hero-title .highlight::after {
-    content: '';
-    position: absolute;
-    bottom: 4px; left: 0; right: 0;
-    height: 8px;
-    background: var(--br-yellow);
-    z-index: -1;
-    border-radius: 4px;
-    opacity: 0.7;
-  }
-
-  @keyframes titleSlide {
-    from { opacity: 0; transform: translateY(40px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  .hero-sub {
-    font-size: 16px;
-    color: #666;
-    text-align: center;
-    max-width: 400px;
-    line-height: 1.7;
-    margin-bottom: 48px;
-    animation: titleSlide 0.8s var(--transition) 0.4s both;
-  }
-
-  .hero-cta {
-    display: flex;
-    gap: 16px;
-    flex-wrap: wrap;
-    justify-content: center;
-    animation: titleSlide 0.8s var(--transition) 0.6s both;
-  }
-
-  .btn-primary {
-    padding: 18px 40px;
-    background: var(--br-pink);
-    color: white;
-    border: none;
-    border-radius: 50px;
-    font-family: 'Black Han Sans', sans-serif;
-    font-size: 18px;
-    cursor: pointer;
-    box-shadow: 0 8px 24px rgba(242,85,122,0.4);
-    transition: all 0.25s var(--transition);
-    position: relative;
-    overflow: hidden;
-  }
-
-  .btn-primary::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(135deg, rgba(255,255,255,0.2), transparent);
-  }
-
-  .btn-primary:hover {
-    transform: translateY(-3px) scale(1.02);
-    box-shadow: 0 16px 32px rgba(242,85,122,0.5);
-  }
-
-  .btn-primary:active { transform: translateY(0) scale(0.98); }
-
-  .btn-secondary {
-    padding: 18px 40px;
-    background: transparent;
-    color: var(--br-pink);
-    border: 2.5px solid var(--br-pink);
-    border-radius: 50px;
-    font-family: 'Black Han Sans', sans-serif;
-    font-size: 18px;
-    cursor: pointer;
-    transition: all 0.25s var(--transition);
-  }
-
-  .btn-secondary:hover {
-    background: var(--br-pink);
-    color: white;
-    transform: translateY(-3px);
-    box-shadow: 0 8px 20px rgba(242,85,122,0.3);
-  }
-
-  .hero-flavors {
-    display: flex;
-    gap: 16px;
-    margin-top: 60px;
-    flex-wrap: wrap;
-    justify-content: center;
-    animation: titleSlide 0.8s var(--transition) 0.8s both;
-  }
-
-  .flavor-pill {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 20px;
-    background: white;
-    border-radius: 50px;
-    font-size: 13px;
-    font-weight: 500;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
-    border: 1.5px solid rgba(0,0,0,0.06);
-    transition: transform 0.2s var(--transition);
-    cursor: default;
-  }
-
-  .flavor-pill:hover { transform: translateY(-4px) rotate(-2deg); }
-  .flavor-pill .dot { width: 10px; height: 10px; border-radius: 50%; }
-
-  /* ===== TEST PAGE ===== */
-  .test-container {
-    max-width: 560px;
-    margin: 0 auto;
-    padding: 40px 20px 80px;
-  }
-
-  .test-progress {
-    display: flex;
-    gap: 6px;
-    margin-bottom: 40px;
-    justify-content: center;
-  }
-
-  .progress-dot {
-    width: 32px;
-    height: 6px;
-    border-radius: 3px;
-    background: rgba(242,85,122,0.15);
-    transition: all 0.4s ease;
-  }
-
-  .progress-dot.done { background: var(--br-pink); }
-  .progress-dot.current { background: var(--br-pink); width: 48px; }
-
-  .question-card {
-    background: white;
-    border-radius: var(--card-radius);
-    padding: 40px;
-    box-shadow: 0 8px 40px rgba(0,0,0,0.08);
-    border: 1.5px solid rgba(0,0,0,0.05);
-    animation: cardIn 0.5s var(--transition) both;
-  }
-
-  @keyframes cardIn {
-    from { opacity: 0; transform: translateY(30px) scale(0.95); }
-    to { opacity: 1; transform: translateY(0) scale(1); }
-  }
-
-  @keyframes cardOut {
-    from { opacity: 1; transform: translateY(0) scale(1); }
-    to { opacity: 0; transform: translateY(-30px) scale(0.95); }
-  }
-
-  .question-num {
-    font-size: 12px;
-    font-weight: 700;
-    color: var(--br-pink);
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    margin-bottom: 16px;
-  }
-
-  .question-scene {
-    font-size: 22px;
-    font-weight: 900;
-    color: var(--br-dark);
-    line-height: 1.4;
-    margin-bottom: 8px;
-  }
-
-  .question-sub {
-    font-size: 14px;
-    color: #888;
-    margin-bottom: 32px;
-    line-height: 1.6;
-  }
-
-  .answer-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-  }
-
-  .answer-btn {
-    padding: 20px 16px;
-    background: var(--br-cream);
-    border: 2px solid rgba(0,0,0,0.06);
-    border-radius: 18px;
-    font-family: 'Noto Sans KR', sans-serif;
-    font-size: 14px;
-    font-weight: 500;
-    color: var(--br-text);
-    cursor: pointer;
-    text-align: left;
-    line-height: 1.5;
-    transition: all 0.2s var(--transition);
-    position: relative;
-    overflow: hidden;
-  }
-
-  .answer-btn .emoji { font-size: 24px; display: block; margin-bottom: 8px; }
-
-  .answer-btn:hover {
-    border-color: var(--br-pink);
-    background: rgba(242,85,122,0.05);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(242,85,122,0.15);
-  }
-
-  .answer-btn:active { transform: scale(0.97); }
-
-  .answer-btn.selected {
-    border-color: var(--br-pink);
-    background: var(--br-pink);
-    color: white;
-    transform: scale(1.02);
-    box-shadow: 0 8px 24px rgba(242,85,122,0.4);
-  }
-
-  /* ===== RESULT CARD ===== */
-  .result-container {
-    max-width: 480px;
-    margin: 0 auto;
-    padding: 40px 20px 80px;
-    text-align: center;
-  }
-
-  .result-card {
-    border-radius: var(--card-radius);
-    padding: 48px 40px;
-    color: white;
-    margin-bottom: 24px;
-    position: relative;
-    overflow: hidden;
-    animation: cardIn 0.7s var(--transition) both;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.2);
-  }
-
-  .result-card::before {
-    content: '';
-    position: absolute;
-    top: -60px; right: -60px;
-    width: 200px; height: 200px;
-    border-radius: 50%;
-    background: rgba(255,255,255,0.1);
-  }
-
-  .result-card::after {
-    content: '';
-    position: absolute;
-    bottom: -40px; left: -40px;
-    width: 150px; height: 150px;
-    border-radius: 50%;
-    background: rgba(255,255,255,0.08);
-  }
-
-  .result-emoji { font-size: 72px; margin-bottom: 16px; animation: bounce 1s var(--transition) 0.5s both; }
-
-  @keyframes bounce {
-    from { opacity: 0; transform: scale(0) rotate(-20deg); }
-    to { opacity: 1; transform: scale(1) rotate(0deg); }
-  }
-
-  .result-label {
-    font-size: 12px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 3px;
-    opacity: 0.8;
-    margin-bottom: 12px;
-  }
-
-  .result-type {
-    font-family: 'Black Han Sans', sans-serif;
-    font-size: 32px;
-    line-height: 1.2;
-    margin-bottom: 20px;
-  }
-
-  .result-desc {
-    font-size: 14px;
-    line-height: 1.8;
-    opacity: 0.9;
-    margin-bottom: 32px;
-  }
-
-  .result-flavors {
-    display: flex;
-    gap: 8px;
-    justify-content: center;
-    flex-wrap: wrap;
-    margin-bottom: 24px;
-  }
-
-  .result-flavor-tag {
-    background: rgba(255,255,255,0.2);
-    backdrop-filter: blur(4px);
-    padding: 8px 16px;
-    border-radius: 50px;
-    font-size: 13px;
-    font-weight: 600;
-    border: 1.5px solid rgba(255,255,255,0.3);
-  }
-
-  .result-hashtags {
-    display: flex;
-    gap: 8px;
-    justify-content: center;
-    flex-wrap: wrap;
-  }
-
-  .hashtag {
-    font-size: 12px;
-    opacity: 0.75;
-    font-weight: 500;
-  }
-
-  .share-section {
-    display: flex;
-    gap: 12px;
-    justify-content: center;
-    flex-wrap: wrap;
-    margin-bottom: 32px;
-  }
-
-  .share-btn {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 14px 24px;
-    border-radius: 50px;
-    border: none;
-    font-family: 'Noto Sans KR', sans-serif;
-    font-size: 14px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.25s var(--transition);
-  }
-
-  .share-btn:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.15); }
-
-  .share-instagram { background: linear-gradient(135deg, #f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%); color: white; }
-  .share-copy { background: var(--br-dark); color: white; }
-  .share-retry { background: var(--br-cream); color: var(--br-text); border: 2px solid rgba(0,0,0,0.1); }
-
-  /* ===== COMBO PAGE ===== */
-  .combo-container {
-    max-width: 700px;
-    margin: 0 auto;
-    padding: 40px 20px 80px;
-  }
-
-  .section-header {
-    text-align: center;
-    margin-bottom: 40px;
-  }
-
-  .section-title {
-    font-family: 'Black Han Sans', sans-serif;
-    font-size: clamp(28px, 5vw, 48px);
-    color: var(--br-dark);
-    margin-bottom: 12px;
-  }
-
-  .section-sub {
-    font-size: 15px;
-    color: #888;
-    line-height: 1.6;
-  }
-
-  .combo-name-input {
-    width: 100%;
-    padding: 20px 28px;
-    border: 2.5px solid rgba(0,0,0,0.1);
-    border-radius: 18px;
-    font-family: 'Noto Sans KR', sans-serif;
-    font-size: 18px;
-    font-weight: 700;
-    color: var(--br-dark);
-    background: white;
-    margin-bottom: 32px;
-    outline: none;
-    transition: border-color 0.2s;
-    text-align: center;
-  }
-
-  .combo-name-input::placeholder { color: #ccc; font-weight: 400; }
-  .combo-name-input:focus { border-color: var(--br-pink); box-shadow: 0 0 0 4px rgba(242,85,122,0.1); }
-
-  .flavor-library {
-    margin-bottom: 32px;
-  }
-
-  .library-label {
-    font-size: 13px;
-    font-weight: 700;
-    color: #888;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-bottom: 16px;
-  }
-
-  .flavor-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-    gap: 10px;
-  }
-
-  .flavor-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 14px 16px;
-    background: white;
-    border: 2px solid rgba(0,0,0,0.06);
-    border-radius: 14px;
-    cursor: pointer;
-    transition: all 0.2s var(--transition);
-    font-size: 13px;
-    font-weight: 500;
-  }
-
-  .flavor-item .ficon {
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    flex-shrink: 0;
-  }
-
-  .flavor-item:hover {
-    border-color: var(--br-pink);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(0,0,0,0.1);
-  }
-
-  .flavor-item.selected {
-    border-color: var(--br-pink);
-    background: rgba(242,85,122,0.05);
-  }
-
-  .flavor-item.selected::after {
-    content: '✓';
-    margin-left: auto;
-    color: var(--br-pink);
-    font-weight: 900;
-    font-size: 14px;
-  }
-
-  .selected-combo {
-    background: white;
-    border-radius: var(--card-radius);
-    padding: 32px;
-    margin-bottom: 32px;
-    border: 2px dashed rgba(242,85,122,0.3);
-    min-height: 120px;
-  }
-
-  .selected-label {
-    font-size: 12px;
-    font-weight: 700;
-    color: var(--br-pink);
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    margin-bottom: 16px;
-  }
-
-  .selected-list {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-  }
-
-  .selected-tag {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 16px;
-    background: var(--br-pink);
-    color: white;
-    border-radius: 50px;
-    font-size: 13px;
-    font-weight: 600;
-    animation: tagPop 0.3s var(--transition);
-  }
-
-  @keyframes tagPop {
-    from { opacity: 0; transform: scale(0.5); }
-    to { opacity: 1; transform: scale(1); }
-  }
-
-  .selected-tag .remove-tag {
-    cursor: pointer;
-    opacity: 0.7;
-    font-size: 16px;
-    line-height: 1;
-    transition: opacity 0.2s;
-  }
-
-  .selected-tag .remove-tag:hover { opacity: 1; }
-
-  .mood-selector {
-    margin-bottom: 32px;
-  }
-
-  .mood-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 10px;
-  }
-
-  .mood-btn {
-    padding: 14px 8px;
-    background: white;
-    border: 2px solid rgba(0,0,0,0.06);
-    border-radius: 14px;
-    cursor: pointer;
-    text-align: center;
-    transition: all 0.2s var(--transition);
-    font-family: 'Noto Sans KR', sans-serif;
-  }
-
-  .mood-btn .mood-icon { font-size: 28px; display: block; margin-bottom: 6px; }
-  .mood-btn .mood-name { font-size: 12px; font-weight: 600; color: #555; }
-
-  .mood-btn:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
-  .mood-btn.selected { border-color: var(--br-pink); background: rgba(242,85,122,0.05); }
-
-  .combo-result-card {
-    border-radius: var(--card-radius);
-    padding: 40px;
-    color: white;
-    text-align: center;
-    animation: cardIn 0.6s var(--transition);
-    box-shadow: 0 20px 60px rgba(0,0,0,0.2);
-    display: none;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .combo-result-card.show { display: block; }
-
-  /* ===== RANKING PAGE ===== */
-  .ranking-container {
-    max-width: 700px;
-    margin: 0 auto;
-    padding: 40px 20px 80px;
-  }
-
-  .ranking-tabs {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 32px;
-    overflow-x: auto;
-    padding-bottom: 8px;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  .ranking-tab {
-    padding: 10px 20px;
-    border-radius: 50px;
-    border: 2px solid rgba(0,0,0,0.1);
-    background: white;
-    font-family: 'Noto Sans KR', sans-serif;
-    font-size: 13px;
-    font-weight: 600;
-    color: #888;
-    cursor: pointer;
-    white-space: nowrap;
-    transition: all 0.2s ease;
-  }
-
-  .ranking-tab.active {
-    background: var(--br-pink);
-    border-color: var(--br-pink);
-    color: white;
-    box-shadow: 0 4px 12px rgba(242,85,122,0.35);
-  }
-
-  .ranking-list { display: flex; flex-direction: column; gap: 12px; }
-
-  .rank-item {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    padding: 20px 24px;
-    background: white;
-    border-radius: 20px;
-    border: 1.5px solid rgba(0,0,0,0.05);
-    box-shadow: 0 4px 16px rgba(0,0,0,0.05);
-    transition: all 0.2s var(--transition);
-    animation: rankSlide 0.5s var(--transition) both;
-  }
-
-  .rank-item:hover { transform: translateX(6px); box-shadow: 0 8px 24px rgba(0,0,0,0.1); }
-
-  @keyframes rankSlide {
-    from { opacity: 0; transform: translateX(-20px); }
-    to { opacity: 1; transform: translateX(0); }
-  }
-
-  .rank-number {
-    font-family: 'Black Han Sans', sans-serif;
-    font-size: 28px;
-    min-width: 44px;
-    text-align: center;
-  }
-
-  .rank-number.gold { color: #FFD700; }
-  .rank-number.silver { color: #C0C0C0; }
-  .rank-number.bronze { color: #CD7F32; }
-  .rank-number.other { color: #ddd; }
-
-  .rank-flavor-dot {
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    flex-shrink: 0;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-  }
-
-  .rank-info { flex: 1; }
-
-  .rank-name {
-    font-size: 16px;
-    font-weight: 700;
-    color: var(--br-dark);
-    margin-bottom: 4px;
-  }
-
-  .rank-sub { font-size: 12px; color: #aaa; }
-
-  .rank-bar-wrapper {
-    width: 120px;
-    height: 8px;
-    background: rgba(0,0,0,0.06);
-    border-radius: 4px;
-    overflow: hidden;
-  }
-
-  .rank-bar {
-    height: 100%;
-    border-radius: 4px;
-    background: var(--br-pink);
-    transition: width 1s ease;
-  }
-
-  .rank-percent {
-    font-size: 13px;
-    font-weight: 700;
-    color: var(--br-pink);
-    min-width: 40px;
-    text-align: right;
-  }
-
-  .trending-badge {
-    font-size: 10px;
-    font-weight: 700;
-    padding: 3px 8px;
-    border-radius: 50px;
-    background: rgba(242,85,122,0.1);
-    color: var(--br-pink);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-
-  .trending-badge.hot { background: rgba(255,140,66,0.15); color: var(--br-orange); }
-  .trending-badge.up { background: rgba(94,207,177,0.15); color: var(--br-mint); }
-
-  .ranking-category-card {
-    background: white;
-    border-radius: var(--card-radius);
-    padding: 28px;
-    margin-bottom: 20px;
-    border: 1.5px solid rgba(0,0,0,0.05);
-  }
-
-  .cat-title {
-    font-family: 'Black Han Sans', sans-serif;
-    font-size: 18px;
-    color: var(--br-dark);
-    margin-bottom: 16px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  /* ===== TOAST ===== */
-  .toast {
-    position: fixed;
-    bottom: 32px;
-    left: 50%;
-    transform: translateX(-50%) translateY(100px);
-    background: var(--br-dark);
-    color: white;
-    padding: 14px 28px;
-    border-radius: 50px;
-    font-size: 14px;
-    font-weight: 600;
-    z-index: 9000;
-    transition: transform 0.4s var(--transition);
-    white-space: nowrap;
-  }
-
-  .toast.show { transform: translateX(-50%) translateY(0); }
-
-  /* ===== UTILITY ===== */
-  .empty-state {
-    text-align: center;
-    padding: 60px 20px;
-    color: #bbb;
-  }
-
-  .empty-state .empty-icon { font-size: 48px; margin-bottom: 12px; }
-  .empty-state p { font-size: 15px; }
-
-  /* ===== RESPONSIVE ===== */
-  @media (max-width: 600px) {
-    nav { padding: 12px 16px; }
-    .nav-tab { padding: 8px 12px; font-size: 12px; }
-    .answer-grid { grid-template-columns: 1fr; }
-    .mood-grid { grid-template-columns: repeat(2, 1fr); }
-    .flavor-grid { grid-template-columns: repeat(2, 1fr); }
-    .rank-bar-wrapper { display: none; }
-  }
-
-  /* ===== MASCOT CHARACTERS ===== */
-  .mascot-left, .mascot-right {
-    position: absolute;
-    bottom: 0;
-    width: 200px;
-    pointer-events: none;
-    animation: mascotFloat 4s ease-in-out infinite;
-    filter: drop-shadow(0 16px 32px rgba(242,85,122,0.25));
-    z-index: 10;
-  }
-
-  .mascot-left {
-    left: calc(50% - 480px);
-    animation-delay: 0s;
-    transform-origin: bottom center;
-  }
-
-  .mascot-right {
-    right: calc(50% - 480px);
-    animation-delay: 1.5s;
-    transform-origin: bottom center;
-  }
-
-  @keyframes mascotFloat {
-    0%, 100% { transform: translateY(0px) rotate(-2deg); }
-    50% { transform: translateY(-18px) rotate(2deg); }
-  }
-
-  .mascot-right {
-    animation-name: mascotFloatRight;
-  }
-
-  @keyframes mascotFloatRight {
-    0%, 100% { transform: translateY(0px) rotate(2deg); }
-    50% { transform: translateY(-18px) rotate(-2deg); }
-  }
-
-  @media (max-width: 1100px) {
-    .mascot-left { left: -20px; width: 140px; opacity: 0.7; }
-    .mascot-right { right: -20px; width: 140px; opacity: 0.7; }
-  }
-
-  @media (max-width: 700px) {
-    .mascot-left, .mascot-right { display: none; }
-  }
-
-</style>
-</head>
-<body>
-
-<nav>
-  <div class="nav-logo">
-    <span>🍦</span> BR×스쿱 Lab
-  </div>
-  <div class="nav-tabs">
-    <button class="nav-tab active" onclick="showPage('home')">홈</button>
-    <button class="nav-tab" onclick="showPage('test')">테스트</button>
-    <button class="nav-tab" onclick="showPage('combo')">나만의 31</button>
-    <button class="nav-tab" onclick="showPage('ranking')">랭킹</button>
-  </div>
-</nav>
-
-<!-- ===== HOME ===== -->
-<div class="page active" id="page-home">
-  <div class="hero">
-    <div class="hero-bg-circles">
-      <div class="hero-circle"></div>
-      <div class="hero-circle"></div>
-      <div class="hero-circle"></div>
-    </div>
-    <div class="hero-badge">✨ NEW 취향 플랫폼 오픈</div>
-    <h1 class="hero-title">
-      당신은 어떤<br><span class="highlight">맛 유형</span>인가요?
-    </h1>
-    <p class="hero-sub">
-      단순히 맛을 고르는 게 아니에요.<br>
-      당신의 감정, 성격, 지금의 상태를<br>아이스크림으로 표현해 보세요.
-    </p>
-    <div class="hero-cta">
-      <button class="btn-primary" onclick="showPage('test'); startTest();">
-        🧬 취향 테스트 시작
-      </button>
-      <button class="btn-secondary" onclick="showPage('ranking')">
-        🔥 인기 랭킹 보기
-      </button>
-    </div>
-    <div class="hero-flavors">
-      <div class="flavor-pill"><div class="dot" style="background:#6B8CFF"></div>민트초코</div>
-      <div class="flavor-pill"><div class="dot" style="background:#FF8FAB"></div>딸기</div>
-      <div class="flavor-pill"><div class="dot" style="background:#7B4F2E"></div>초코무스</div>
-      <div class="flavor-pill"><div class="dot" style="background:#FFD951"></div>망고</div>
-      <div class="flavor-pill"><div class="dot" style="background:#A8E6CF"></div>녹차</div>
-      <div class="flavor-pill"><div class="dot" style="background:#DDA0DD"></div>블루베리</div>
-    </div>
-
-    <!-- Mascot Characters -->
-    <!-- ★ 왼쪽 캐릭터 이미지: 기본 베라.png 경로로 교체하세요 -->
-    <img class="mascot-left" src="./basic-vera.png" alt="스쿱 마스코트 기본" />
-    <!-- ★ 오른쪽 캐릭터 이미지: 입벌린 베라.png 경로로 교체하세요 -->
-    <img class="mascot-right" src="./smile-vera.png" alt="스쿱 마스코트 웃음" />
-  </div>
-</div>
-
-<!-- ===== TEST PAGE ===== -->
-<div class="page" id="page-test">
-  <div class="test-container" id="test-content">
-    <!-- dynamically rendered -->
-  </div>
-</div>
-
-<!-- ===== COMBO PAGE ===== -->
-<div class="page" id="page-combo">
-  <div class="combo-container">
-    <div class="section-header">
-      <h2 class="section-title">나만의 31 조합 🍨</h2>
-      <p class="section-sub">나만의 특별한 아이스크림 세트를 만들어 보세요</p>
-    </div>
-
-    <input type="text" class="combo-name-input" id="combo-name" placeholder="조합 이름을 지어주세요 (예: 야작 생존팩)" maxlength="20">
-
-    <div class="mood-selector">
-      <div class="library-label">무드 선택</div>
-      <div class="mood-grid" id="mood-grid">
-        <button class="mood-btn" data-mood="공부/야작" onclick="selectMood(this)">
-          <span class="mood-icon">📚</span>
-          <span class="mood-name">공부/야작</span>
-        </button>
-        <button class="mood-btn" data-mood="연애/설렘" onclick="selectMood(this)">
-          <span class="mood-icon">💕</span>
-          <span class="mood-name">연애/설렘</span>
-        </button>
-        <button class="mood-btn" data-mood="힐링/위로" onclick="selectMood(this)">
-          <span class="mood-icon">🌙</span>
-          <span class="mood-name">힐링/위로</span>
-        </button>
-        <button class="mood-btn" data-mood="파티/신남" onclick="selectMood(this)">
-          <span class="mood-icon">🎉</span>
-          <span class="mood-name">파티/신남</span>
-        </button>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>배스킨라빈스 × 취향 플랫폼 | 당신은 어떤 맛 유형인가요?</title>
+    <link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+      :root {
+        --br-pink: #df7781 ; /*Fedadd*/
+        --br-blue: #4B9EF5;
+        --br-mint: #5ECFB1;
+        --br-yellow: #FFD951;
+        --br-orange: #FF8C42;
+        --br-purple: #9B6FD4;
+        --br-cream: #FFF8F0; /*FFF8F0*/
+        --br-dark: #906b4c ;  /*1A1A2E*/
+        --br-text: #2D2D2D;
+        --card-radius: 28px;
+        --transition: cubic-bezier(0.34, 1.56, 0.64, 1);
+      }
+
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+
+      body {
+        font-family: 'Noto Sans KR', sans-serif;
+        background: var(--br-cream);
+        color: var(--br-text);
+        min-height: 100vh;
+        overflow-x: hidden;
+      }
+
+      /* ===== NOISE TEXTURE OVERLAY ===== */
+      body::before {
+        content: '';
+        position: fixed;
+        inset: 0;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+        pointer-events: none;
+        z-index: 9999;
+        opacity: 0.4;
+      }
+
+      /* ===== NAV ===== */
+      nav {
+        position: fixed;
+        top: 0; left: 0; right: 0;
+        z-index: 100;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 16px 32px;
+        background: rgba(255,248,240,0.85);
+        backdrop-filter: blur(12px);
+        border-bottom: 2px solid rgba(242,85,122,0.15);
+      }
+
+      .nav-logo {
+        font-family: 'Black Han Sans', sans-serif;
+        font-size: 20px;
+        color: var(--br-pink);
+        letter-spacing: -0.5px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .nav-logo span { font-size: 24px; }
+
+      .nav-tabs {
+        display: flex;
+        gap: 4px;
+        background: rgba(242,85,122,0.08);
+        padding: 4px;
+        border-radius: 50px;
+      }
+
+      .nav-tab {
+        padding: 8px 20px;
+        border-radius: 50px;
+        border: none;
+        background: transparent;
+        font-family: 'Noto Sans KR', sans-serif;
+        font-size: 13px;
+        font-weight: 500;
+        color: #888;
+        cursor: pointer;
+        transition: all 0.25s ease;
+        white-space: nowrap;
+      }
+
+      .nav-tab.active {
+        background: var(--br-pink);
+        color: white;
+        font-weight: 700;
+        box-shadow: 0 4px 12px rgba(242,85,122,0.35);
+      }
+
+      /* ===== PAGES ===== */
+      .page { display: none; min-height: 100vh; padding-top: 80px; }
+      .page.active { display: block; }
+
+      /* ===== HERO ===== */
+      .hero {
+        min-height: calc(100vh - 80px);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 40px 20px;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .hero-bg-circles {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+      }
+
+      .hero-circle {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(80px);
+        opacity: 0.3;
+        animation: floatCircle 8s ease-in-out infinite;
+      }
+
+      .hero-circle:nth-child(1) { width: 400px; height: 400px; background: var(--br-pink); top: -100px; right: -100px; animation-delay: 0s; }
+      .hero-circle:nth-child(2) { width: 300px; height: 300px; background: var(--br-blue); bottom: -50px; left: -80px; animation-delay: 2s; }
+      .hero-circle:nth-child(3) { width: 200px; height: 200px; background: var(--br-yellow); top: 50%; left: 40%; animation-delay: 4s; }
+
+      @keyframes floatCircle {
+        0%, 100% { transform: translateY(0px) scale(1); }
+        50% { transform: translateY(-30px) scale(1.05); }
+      }
+
+      .hero-badge {
+        background: var(--br-pink);
+        color: white;
+        padding: 6px 18px;
+        border-radius: 50px;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        margin-bottom: 24px;
+        text-transform: uppercase;
+        animation: badgePop 0.6s var(--transition) both;
+      }
+
+      @keyframes badgePop {
+        from { opacity: 0; transform: scale(0.5) translateY(20px); }
+        to { opacity: 1; transform: scale(1) translateY(0); }
+      }
+
+      .hero-title {
+        font-family: 'Black Han Sans', sans-serif;
+        font-size: clamp(36px, 8vw, 80px);
+        line-height: 1.1;
+        text-align: center;
+        color: var(--br-dark);
+        margin-bottom: 20px;
+        animation: titleSlide 0.8s var(--transition) 0.2s both;
+      }
+
+      .hero-title .highlight {
+        color: var(--br-pink);
+        position: relative;
+        display: inline-block;
+      }
+
+      .hero-title .highlight::after {
+        content: '';
+        position: absolute;
+        bottom: 4px; left: 0; right: 0;
+        height: 8px;
+        background: var(--br-yellow);
+        z-index: -1;
+        border-radius: 4px;
+        opacity: 0.7;
+      }
+
+      @keyframes titleSlide {
+        from { opacity: 0; transform: translateY(40px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+
+      .hero-sub {
+        font-size: 16px;
+        color: #666;
+        text-align: center;
+        max-width: 400px;
+        line-height: 1.7;
+        margin-bottom: 48px;
+        animation: titleSlide 0.8s var(--transition) 0.4s both;
+      }
+
+      .hero-cta {
+        display: flex;
+        gap: 16px;
+        flex-wrap: wrap;
+        justify-content: center;
+        animation: titleSlide 0.8s var(--transition) 0.6s both;
+      }
+
+      .btn-primary {
+        padding: 18px 40px;
+        background: var(--br-pink);
+        color: white;
+        border: none;
+        border-radius: 50px;
+        font-family: 'Black Han Sans', sans-serif;
+        font-size: 18px;
+        cursor: pointer;
+        box-shadow: 0 8px 24px rgba(242,85,122,0.4);
+        transition: all 0.25s var(--transition);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .btn-primary::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(135deg, rgba(255,255,255,0.2), transparent);
+      }
+
+      .btn-primary:hover {
+        transform: translateY(-3px) scale(1.02);
+        box-shadow: 0 16px 32px rgba(242,85,122,0.5);
+      }
+
+      .btn-primary:active { transform: translateY(0) scale(0.98); }
+
+      .btn-secondary {
+        padding: 18px 40px;
+        background: transparent;
+        color: var(--br-pink);
+        border: 2.5px solid var(--br-pink);
+        border-radius: 50px;
+        font-family: 'Black Han Sans', sans-serif;
+        font-size: 18px;
+        cursor: pointer;
+        transition: all 0.25s var(--transition);
+      }
+
+      .btn-secondary:hover {
+        background: var(--br-pink);
+        color: white;
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(242,85,122,0.3);
+      }
+
+      .hero-flavors {
+        display: flex;
+        gap: 16px;
+        margin-top: 60px;
+        flex-wrap: wrap;
+        justify-content: center;
+        animation: titleSlide 0.8s var(--transition) 0.8s both;
+      }
+
+      .flavor-pill {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 20px;
+        background: white;
+        border-radius: 50px;
+        font-size: 13px;
+        font-weight: 500;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+        border: 1.5px solid rgba(0,0,0,0.06);
+        transition: transform 0.2s var(--transition);
+        cursor: default;
+      }
+
+      .flavor-pill:hover { transform: translateY(-4px) rotate(-2deg); }
+      .flavor-pill .dot { width: 10px; height: 10px; border-radius: 50%; }
+
+      /* ===== TEST PAGE ===== */
+      .test-container {
+        max-width: 560px;
+        margin: 0 auto;
+        padding: 40px 20px 80px;
+      }
+
+      .test-progress {
+        display: flex;
+        gap: 6px;
+        margin-bottom: 40px;
+        justify-content: center;
+      }
+
+      .progress-dot {
+        width: 32px;
+        height: 6px;
+        border-radius: 3px;
+        background: rgba(242,85,122,0.15);
+        transition: all 0.4s ease;
+      }
+
+      .progress-dot.done { background: var(--br-pink); }
+      .progress-dot.current { background: var(--br-pink); width: 48px; }
+
+      .question-card {
+        background: white;
+        border-radius: var(--card-radius);
+        padding: 40px;
+        box-shadow: 0 8px 40px rgba(0,0,0,0.08);
+        border: 1.5px solid rgba(0,0,0,0.05);
+        animation: cardIn 0.5s var(--transition) both;
+      }
+
+      @keyframes cardIn {
+        from { opacity: 0; transform: translateY(30px) scale(0.95); }
+        to { opacity: 1; transform: translateY(0) scale(1); }
+      }
+
+      @keyframes cardOut {
+        from { opacity: 1; transform: translateY(0) scale(1); }
+        to { opacity: 0; transform: translateY(-30px) scale(0.95); }
+      }
+
+      .question-num {
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--br-pink);
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        margin-bottom: 16px;
+      }
+
+      .question-scene {
+        font-size: 22px;
+        font-weight: 900;
+        color: var(--br-dark);
+        line-height: 1.4;
+        margin-bottom: 8px;
+      }
+
+      .question-sub {
+        font-size: 14px;
+        color: #888;
+        margin-bottom: 32px;
+        line-height: 1.6;
+      }
+
+      .answer-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+
+      .answer-btn {
+        padding: 20px 16px;
+        background: var(--br-cream);
+        border: 2px solid rgba(0,0,0,0.06);
+        border-radius: 18px;
+        font-family: 'Noto Sans KR', sans-serif;
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--br-text);
+        cursor: pointer;
+        text-align: left;
+        line-height: 1.5;
+        transition: all 0.2s var(--transition);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .answer-btn .emoji { font-size: 24px; display: block; margin-bottom: 8px; }
+
+      .answer-btn:hover {
+        border-color: var(--br-pink);
+        background: rgba(242,85,122,0.05);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(242,85,122,0.15);
+      }
+
+      .answer-btn:active { transform: scale(0.97); }
+
+      .answer-btn.selected {
+        border-color: var(--br-pink);
+        background: var(--br-pink);
+        color: white;
+        transform: scale(1.02);
+        box-shadow: 0 8px 24px rgba(242,85,122,0.4);
+      }
+
+      /* ===== RESULT CARD ===== */
+      .result-container {
+        max-width: 480px;
+        margin: 0 auto;
+        padding: 40px 20px 80px;
+        text-align: center;
+      }
+
+      .result-card {
+        border-radius: var(--card-radius);
+        padding: 48px 40px;
+        color: white;
+        margin-bottom: 24px;
+        position: relative;
+        overflow: hidden;
+        animation: cardIn 0.7s var(--transition) both;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+      }
+
+      .result-card::before {
+        content: '';
+        position: absolute;
+        top: -60px; right: -60px;
+        width: 200px; height: 200px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.1);
+      }
+
+      .result-card::after {
+        content: '';
+        position: absolute;
+        bottom: -40px; left: -40px;
+        width: 150px; height: 150px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.08);
+      }
+
+      .result-emoji { font-size: 72px; margin-bottom: 16px; animation: bounce 1s var(--transition) 0.5s both; }
+
+      @keyframes bounce {
+        from { opacity: 0; transform: scale(0) rotate(-20deg); }
+        to { opacity: 1; transform: scale(1) rotate(0deg); }
+      }
+
+      .result-label {
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 3px;
+        opacity: 0.8;
+        margin-bottom: 12px;
+      }
+
+      .result-type {
+        font-family: 'Black Han Sans', sans-serif;
+        font-size: 32px;
+        line-height: 1.2;
+        margin-bottom: 20px;
+      }
+
+      .result-desc {
+        font-size: 14px;
+        line-height: 1.8;
+        opacity: 0.9;
+        margin-bottom: 32px;
+      }
+
+      .result-flavors {
+        display: flex;
+        gap: 8px;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-bottom: 24px;
+      }
+
+      .result-flavor-tag {
+        background: rgba(255,255,255,0.2);
+        backdrop-filter: blur(4px);
+        padding: 8px 16px;
+        border-radius: 50px;
+        font-size: 13px;
+        font-weight: 600;
+        border: 1.5px solid rgba(255,255,255,0.3);
+      }
+
+      .result-hashtags {
+        display: flex;
+        gap: 8px;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+
+      .hashtag {
+        font-size: 12px;
+        opacity: 0.75;
+        font-weight: 500;
+      }
+
+      .share-section {
+        display: flex;
+        gap: 12px;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-bottom: 32px;
+      }
+
+      .share-btn {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 14px 24px;
+        border-radius: 50px;
+        border: none;
+        font-family: 'Noto Sans KR', sans-serif;
+        font-size: 14px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.25s var(--transition);
+      }
+
+      .share-btn:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.15); }
+
+      .share-instagram { background: linear-gradient(135deg, #f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%); color: white; }
+      .share-copy { background: var(--br-dark); color: white; }
+      .share-retry { background: var(--br-cream); color: var(--br-text); border: 2px solid rgba(0,0,0,0.1); }
+
+      /* ===== COMBO PAGE ===== */
+      .combo-container {
+        max-width: 700px;
+        margin: 0 auto;
+        padding: 40px 20px 80px;
+      }
+
+      .section-header {
+        text-align: center;
+        margin-bottom: 40px;
+      }
+
+      .section-title {
+        font-family: 'Black Han Sans', sans-serif;
+        font-size: clamp(28px, 5vw, 48px);
+        color: var(--br-dark);
+        margin-bottom: 12px;
+      }
+
+      .section-sub {
+        font-size: 15px;
+        color: #888;
+        line-height: 1.6;
+      }
+
+      .combo-name-input {
+        width: 100%;
+        padding: 20px 28px;
+        border: 2.5px solid rgba(0,0,0,0.1);
+        border-radius: 18px;
+        font-family: 'Noto Sans KR', sans-serif;
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--br-dark);
+        background: white;
+        margin-bottom: 32px;
+        outline: none;
+        transition: border-color 0.2s;
+        text-align: center;
+      }
+
+      .combo-name-input::placeholder { color: #ccc; font-weight: 400; }
+      .combo-name-input:focus { border-color: var(--br-pink); box-shadow: 0 0 0 4px rgba(242,85,122,0.1); }
+
+      .flavor-library {
+        margin-bottom: 32px;
+      }
+
+      .library-label {
+        font-size: 13px;
+        font-weight: 700;
+        color: #888;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 16px;
+      }
+
+      .flavor-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        gap: 10px;
+      }
+
+      .flavor-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 14px 16px;
+        background: white;
+        border: 2px solid rgba(0,0,0,0.06);
+        border-radius: 14px;
+        cursor: pointer;
+        transition: all 0.2s var(--transition);
+        font-size: 13px;
+        font-weight: 500;
+      }
+
+      .flavor-item .ficon {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        flex-shrink: 0;
+      }
+
+      .flavor-item:hover {
+        border-color: var(--br-pink);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+      }
+
+      .flavor-item.selected {
+        border-color: var(--br-pink);
+        background: rgba(242,85,122,0.05);
+      }
+
+      .flavor-item.selected::after {
+        content: '✓';
+        margin-left: auto;
+        color: var(--br-pink);
+        font-weight: 900;
+        font-size: 14px;
+      }
+
+      .selected-combo {
+        background: white;
+        border-radius: var(--card-radius);
+        padding: 32px;
+        margin-bottom: 32px;
+        border: 2px dashed rgba(242,85,122,0.3);
+        min-height: 120px;
+      }
+
+      .selected-label {
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--br-pink);
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        margin-bottom: 16px;
+      }
+
+      .selected-list {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      .selected-tag {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 16px;
+        background: var(--br-pink);
+        color: white;
+        border-radius: 50px;
+        font-size: 13px;
+        font-weight: 600;
+        animation: tagPop 0.3s var(--transition);
+      }
+
+      @keyframes tagPop {
+        from { opacity: 0; transform: scale(0.5); }
+        to { opacity: 1; transform: scale(1); }
+      }
+
+      .selected-tag .remove-tag {
+        cursor: pointer;
+        opacity: 0.7;
+        font-size: 16px;
+        line-height: 1;
+        transition: opacity 0.2s;
+      }
+
+      .selected-tag .remove-tag:hover { opacity: 1; }
+
+      .mood-selector {
+        margin-bottom: 32px;
+      }
+
+      .mood-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+      }
+
+      .mood-btn {
+        padding: 14px 8px;
+        background: white;
+        border: 2px solid rgba(0,0,0,0.06);
+        border-radius: 14px;
+        cursor: pointer;
+        text-align: center;
+        transition: all 0.2s var(--transition);
+        font-family: 'Noto Sans KR', sans-serif;
+      }
+
+      .mood-btn .mood-icon { font-size: 28px; display: block; margin-bottom: 6px; }
+      .mood-btn .mood-name { font-size: 12px; font-weight: 600; color: #555; }
+
+      .mood-btn:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
+      .mood-btn.selected { border-color: var(--br-pink); background: rgba(242,85,122,0.05); }
+
+      .combo-result-card {
+        border-radius: var(--card-radius);
+        padding: 40px;
+        color: white;
+        text-align: center;
+        animation: cardIn 0.6s var(--transition);
+        box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+        display: none;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .combo-result-card.show { display: block; }
+
+      /* ===== RANKING PAGE ===== */
+      .ranking-container {
+        max-width: 700px;
+        margin: 0 auto;
+        padding: 40px 20px 80px;
+      }
+
+      .ranking-tabs {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 32px;
+        overflow-x: auto;
+        padding-bottom: 8px;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .ranking-tab {
+        padding: 10px 20px;
+        border-radius: 50px;
+        border: 2px solid rgba(0,0,0,0.1);
+        background: white;
+        font-family: 'Noto Sans KR', sans-serif;
+        font-size: 13px;
+        font-weight: 600;
+        color: #888;
+        cursor: pointer;
+        white-space: nowrap;
+        transition: all 0.2s ease;
+      }
+
+      .ranking-tab.active {
+        background: var(--br-pink);
+        border-color: var(--br-pink);
+        color: white;
+        box-shadow: 0 4px 12px rgba(242,85,122,0.35);
+      }
+
+      .ranking-list { display: flex; flex-direction: column; gap: 12px; }
+
+      .rank-item {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        padding: 20px 24px;
+        background: white;
+        border-radius: 20px;
+        border: 1.5px solid rgba(0,0,0,0.05);
+        box-shadow: 0 4px 16px rgba(0,0,0,0.05);
+        transition: all 0.2s var(--transition);
+        animation: rankSlide 0.5s var(--transition) both;
+      }
+
+      .rank-item:hover { transform: translateX(6px); box-shadow: 0 8px 24px rgba(0,0,0,0.1); }
+
+      @keyframes rankSlide {
+        from { opacity: 0; transform: translateX(-20px); }
+        to { opacity: 1; transform: translateX(0); }
+      }
+
+      .rank-number {
+        font-family: 'Black Han Sans', sans-serif;
+        font-size: 28px;
+        min-width: 44px;
+        text-align: center;
+      }
+
+      .rank-number.gold { color: #FFD700; }
+      .rank-number.silver { color: #C0C0C0; }
+      .rank-number.bronze { color: #CD7F32; }
+      .rank-number.other { color: #ddd; }
+
+      .rank-flavor-dot {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        flex-shrink: 0;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      }
+
+      .rank-info { flex: 1; }
+
+      .rank-name {
+        font-size: 16px;
+        font-weight: 700;
+        color: var(--br-dark);
+        margin-bottom: 4px;
+      }
+
+      .rank-sub { font-size: 12px; color: #aaa; }
+
+      .rank-bar-wrapper {
+        width: 120px;
+        height: 8px;
+        background: rgba(0,0,0,0.06);
+        border-radius: 4px;
+        overflow: hidden;
+      }
+
+      .rank-bar {
+        height: 100%;
+        border-radius: 4px;
+        background: var(--br-pink);
+        transition: width 1s ease;
+      }
+
+      .rank-percent {
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--br-pink);
+        min-width: 40px;
+        text-align: right;
+      }
+
+      .trending-badge {
+        font-size: 10px;
+        font-weight: 700;
+        padding: 3px 8px;
+        border-radius: 50px;
+        background: rgba(242,85,122,0.1);
+        color: var(--br-pink);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .trending-badge.hot { background: rgba(255,140,66,0.15); color: var(--br-orange); }
+      .trending-badge.up { background: rgba(94,207,177,0.15); color: var(--br-mint); }
+
+      .ranking-category-card {
+        background: white;
+        border-radius: var(--card-radius);
+        padding: 28px;
+        margin-bottom: 20px;
+        border: 1.5px solid rgba(0,0,0,0.05);
+      }
+
+      .cat-title {
+        font-family: 'Black Han Sans', sans-serif;
+        font-size: 18px;
+        color: var(--br-dark);
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      /* ===== TOAST ===== */
+      .toast {
+        position: fixed;
+        bottom: 32px;
+        left: 50%;
+        transform: translateX(-50%) translateY(100px);
+        background: var(--br-dark);
+        color: white;
+        padding: 14px 28px;
+        border-radius: 50px;
+        font-size: 14px;
+        font-weight: 600;
+        z-index: 9000;
+        transition: transform 0.4s var(--transition);
+        white-space: nowrap;
+      }
+
+      .toast.show { transform: translateX(-50%) translateY(0); }
+
+      /* ===== UTILITY ===== */
+      .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: #bbb;
+      }
+
+      .empty-state .empty-icon { font-size: 48px; margin-bottom: 12px; }
+      .empty-state p { font-size: 15px; }
+
+      /* ===== RESPONSIVE ===== */
+      @media (max-width: 600px) {
+        nav { padding: 12px 16px; }
+        .nav-tab { padding: 8px 12px; font-size: 12px; }
+        .answer-grid { grid-template-columns: 1fr; }
+        .mood-grid { grid-template-columns: repeat(2, 1fr); }
+        .flavor-grid { grid-template-columns: repeat(2, 1fr); }
+        .rank-bar-wrapper { display: none; }
+      }
+
+      /* ===== MASCOT CHARACTERS ===== */
+      .mascot-left, .mascot-right {
+        position: absolute;
+        bottom: 0;
+        width: 200px;
+        pointer-events: none;
+        animation: mascotFloat 4s ease-in-out infinite;
+        filter: drop-shadow(0 16px 32px rgba(242,85,122,0.25));
+        z-index: 10;
+      }
+
+      .mascot-left {
+        left: calc(50% - 480px);
+        animation-delay: 0s;
+        transform-origin: bottom center;
+      }
+
+      .mascot-right {
+        right: calc(50% - 480px);
+        animation-delay: 1.5s;
+        transform-origin: bottom center;
+      }
+
+      @keyframes mascotFloat {
+        0%, 100% { transform: translateY(0px) rotate(-2deg); }
+        50% { transform: translateY(-18px) rotate(2deg); }
+      }
+
+      .mascot-right {
+        animation-name: mascotFloatRight;
+      }
+
+      @keyframes mascotFloatRight {
+        0%, 100% { transform: translateY(0px) rotate(2deg); }
+        50% { transform: translateY(-18px) rotate(-2deg); }
+      }
+
+      @media (max-width: 1100px) {
+        .mascot-left { left: -20px; width: 140px; opacity: 0.7; }
+        .mascot-right { right: -20px; width: 140px; opacity: 0.7; }
+      }
+
+      @media (max-width: 700px) {
+        .mascot-left, .mascot-right { display: none; }
+      }
+
+    </style>
+  </head>
+  <body>
+
+    <nav>
+      <div class="nav-logo">
+        <span>🍦</span> BR×스쿱 Lab
       </div>
-    </div>
-
-    <div class="flavor-library">
-      <div class="library-label">맛 선택 (최대 3개)</div>
-      <div class="flavor-grid" id="flavor-grid"></div>
-    </div>
-
-    <div class="selected-combo">
-      <div class="selected-label">🍦 나의 조합</div>
-      <div class="selected-list" id="selected-list">
-        <div style="color:#ccc; font-size:14px; padding: 8px 0;">맛을 선택해주세요...</div>
+      <div class="nav-tabs">
+        <button class="nav-tab active" onclick="showPage('home')">홈</button>
+        <button class="nav-tab" onclick="showPage('test')">테스트</button>
+        <button class="nav-tab" onclick="showPage('combo')">나만의 31</button>
+        <button class="nav-tab" onclick="showPage('ranking')">랭킹</button>
       </div>
-    </div>
+    </nav>
 
-    <button class="btn-primary" style="width:100%; margin-bottom: 20px;" onclick="generateComboResult()">
-      ✨ 나만의 조합 카드 만들기
-    </button>
-
-    <div class="combo-result-card" id="combo-result"></div>
-  </div>
-</div>
-
-<!-- ===== RANKING PAGE ===== -->
-<div class="page" id="page-ranking">
-  <div class="ranking-container">
-    <div class="section-header">
-      <h2 class="section-title">🔥 이달의 취향 랭킹</h2>
-      <p class="section-sub">지금 가장 핫한 아이스크림 조합을 확인하세요</p>
-    </div>
-
-    <div class="ranking-tabs">
-      <button class="ranking-tab active" onclick="showRanking('all', this)">전체 인기</button>
-      <button class="ranking-tab" onclick="showRanking('student', this)">대학생 픽</button>
-      <button class="ranking-tab" onclick="showRanking('exam', this)">시험기간</button>
-      <button class="ranking-tab" onclick="showRanking('mbti', this)">MBTI별</button>
-      <button class="ranking-tab" onclick="showRanking('area', this)">지역별</button>
-    </div>
-
-    <div id="ranking-list" class="ranking-list"></div>
-  </div>
-</div>
-
-<!-- TOAST -->
-<div class="toast" id="toast"></div>
-
-<script>
-// ===== DATA =====
-const FLAVORS = [
-  { name: '민트초코', color: '#6B8CFF', emoji: '💙', tags: ['야작형', '고집형'] },
-  { name: '딸기', color: '#FF8FAB', emoji: '🍓', tags: ['설렘형', '귀여운형'] },
-  { name: '초코무스', color: '#7B4F2E', emoji: '🍫', tags: ['감성형', '위로형'] },
-  { name: '망고', color: '#FFD951', emoji: '🥭', tags: ['활발형', '파티형'] },
-  { name: '녹차', color: '#A8E6CF', emoji: '🍵', tags: ['힐링형', '조용한형'] },
-  { name: '블루베리', color: '#9B6FD4', emoji: '🫐', tags: ['감성형', '몽환형'] },
-  { name: '바닐라', color: '#FFF0C8', emoji: '🤍', tags: ['기본형', '안정형'] },
-  { name: '레인보우샤벳', color: '#FF6B9D', emoji: '🌈', tags: ['파티형', '감각형'] },
-  { name: '엄마는외계인', color: '#FFB347', emoji: '👽', tags: ['개성형', '독특형'] },
-  { name: '뉴욕치즈케이크', color: '#F5E6CA', emoji: '🧀', tags: ['여유형', '감성형'] },
-  { name: '슈팅스타', color: '#C9B8E8', emoji: '⭐', tags: ['몽환형', '이상형'] },
-  { name: '피스타치오', color: '#B5C99A', emoji: '🌿', tags: ['힐링형', '고급형'] },
-];
-
-const QUESTIONS = [
-  {
-    scene: '시험기간 새벽 2시.\n당신의 상태는?',
-    sub: '솔직하게 골라봐요 👀',
-    options: [
-      { emoji: '☕', text: '일단 카페인', scores: { mint: 2, energy: 2 } },
-      { emoji: '💀', text: '이미 포기함', scores: { choco: 2, sad: 2 } },
-      { emoji: '🌙', text: '감성 터짐', scores: { berry: 2, emo: 2 } },
-      { emoji: '📱', text: '친구랑 떠드는 중', scores: { mango: 2, social: 2 } },
-    ]
-  },
-  {
-    scene: '연애 시작 직전의 나는?',
-    sub: '연애 초기 당신의 타입은요',
-    options: [
-      { emoji: '💘', text: '설렘 폭주', scores: { strawberry: 2, social: 2 } },
-      { emoji: '🔍', text: '의미부여 중', scores: { berry: 2, emo: 2 } },
-      { emoji: '😎', text: '아무렇지 않은 척', scores: { vanilla: 2, cool: 2 } },
-      { emoji: '🏃', text: '도망가고 싶음', scores: { mint: 2, cool: 2 } },
-    ]
-  },
-  {
-    scene: '친구가 갑자기 "나 오늘 힘들어"\n라고 문자 왔을 때',
-    sub: '당신의 첫 반응은?',
-    options: [
-      { emoji: '🎤', text: '바로 전화', scores: { mango: 2, social: 2 } },
-      { emoji: '💬', text: '위로 장문 문자', scores: { choco: 2, emo: 2 } },
-      { emoji: '🍦', text: '아이스크림 사러 가자', scores: { strawberry: 2, social: 2 } },
-      { emoji: '👀', text: '일단 자세히 물어봄', scores: { green: 2, cool: 2 } },
-    ]
-  },
-  {
-    scene: '나에게 주말 오전은?',
-    sub: '이상적인 주말 아침 장면',
-    options: [
-      { emoji: '🛌', text: '몇 시간이라도 더 자기', scores: { choco: 2, sad: 2 } },
-      { emoji: '☀️', text: '일찍 일어나 계획 실행', scores: { mango: 2, energy: 2 } },
-      { emoji: '📺', text: '유튜브/넷플 정주행', scores: { berry: 2, emo: 2 } },
-      { emoji: '🚶', text: '가볍게 산책 나가기', scores: { green: 2, cool: 2 } },
-    ]
-  },
-  {
-    scene: '단체 과제에서 나의 포지션은?',
-    sub: '솔직히 어떤 스타일이에요?',
-    options: [
-      { emoji: '👑', text: '팀장 자처함', scores: { mango: 2, energy: 2 } },
-      { emoji: '🎨', text: 'PPT 혼자 다 만듦', scores: { emo: 2, berry: 2 } },
-      { emoji: '🔧', text: '묵묵히 내 파트만', scores: { cool: 2, vanilla: 2 } },
-      { emoji: '🔥', text: '마감 전날 폭발', scores: { mint: 2, energy: 2 } },
-    ]
-  },
-];
-
-const RESULT_TYPES = {
-  mint_energy: {
-    emoji: '🌿',
-    type: '야작 생존 민트형',
-    desc: '새벽에 살아나는 타입.\n피곤하다면서 결국 민트초코 먹으며 과제함.\n집중력은 새벽 12시부터 시작됩니다.',
-    flavors: ['민트초코', '엄마는외계인', '초코무스'],
-    tags: ['#시험기간생존러', '#민초과몰입형', '#새벽감성맛'],
-    gradient: 'linear-gradient(135deg, #43a89a, #2b6cb0)',
-  },
-  choco_sad: {
-    emoji: '🍫',
-    type: '새벽 감성 초코형',
-    desc: '모든 감정을 초콜릿으로 해결하는 타입.\n힘들 땐 초코, 기쁠 땐 초코, 이유 없어도 초코.\n당신에게 초코는 종교입니다.',
-    flavors: ['초코무스', '뉴욕치즈케이크', '블루베리'],
-    tags: ['#초코신봉자', '#감성과몰입형', '#위로맛필요'],
-    gradient: 'linear-gradient(135deg, #7B4F2E, #4a1942)',
-  },
-  strawberry_social: {
-    emoji: '🍓',
-    type: '설렘 폭주 딸기형',
-    desc: '에너지가 넘치고 사람을 좋아하는 타입.\n친구 많고, 약속 많고, 연락 많음.\n딸기처럼 새콤달콤한 사람.',
-    flavors: ['딸기', '레인보우샤벳', '망고'],
-    tags: ['#인싸감성', '#연락왕', '#설렘중독'],
-    gradient: 'linear-gradient(135deg, #FF8FAB, #FF6B9D)',
-  },
-  berry_emo: {
-    emoji: '🫐',
-    type: '몽환 감성 블루베리형',
-    desc: '머릿속에 항상 무언가 생각하는 타입.\nINFP 기질, 의미 부여 전문가.\n혼자만의 세계가 가장 아름답습니다.',
-    flavors: ['블루베리', '슈팅스타', '녹차'],
-    tags: ['#감성INFP', '#의미부여장인', '#혼자가편한'],
-    gradient: 'linear-gradient(135deg, #9B6FD4, #4776E6)',
-  },
-  mango_social: {
-    emoji: '🥭',
-    type: '에너지 MAX 망고형',
-    desc: '항상 밝고 에너지 넘치는 타입.\n분위기 메이커, 파티의 주인공.\n무슨 일이든 긍정적으로 바라봅니다.',
-    flavors: ['망고', '레인보우샤벳', '딸기'],
-    tags: ['#분위기메이커', '#에너자이저', '#긍정왕'],
-    gradient: 'linear-gradient(135deg, #FFD951, #FF8C42)',
-  },
-  vanilla_cool: {
-    emoji: '🤍',
-    type: '쿨내나는 바닐라형',
-    desc: '감정 기복 없고 안정적인 타입.\n뭐든 처음에는 신중하게.\n알고 보면 엄청 따뜻한 사람.',
-    flavors: ['바닐라', '녹차', '뉴욕치즈케이크'],
-    tags: ['#겉바속촉', '#쿨내나는척', '#사실따뜻함'],
-    gradient: 'linear-gradient(135deg, #8EC5FC, #E0C3FC)',
-  },
-};
-
-const RANKING_DATA = {
-  all: [
-    { name: '민트초코', sub: '민트초코 마니아 전국 연합', color: '#6B8CFF', pct: 92, trend: 'hot' },
-    { name: '딸기', sub: '사계절 내내 인기 1위', color: '#FF8FAB', pct: 88, trend: 'up' },
-    { name: '초코무스', sub: '감성 소비자 압도적 선택', color: '#7B4F2E', pct: 76, trend: '' },
-    { name: '망고', sub: '여름 시즌 급상승', color: '#FFD951', pct: 71, trend: 'up' },
-    { name: '뉴욕치즈케이크', sub: '어른들의 최애', color: '#F5E6CA', pct: 65, trend: '' },
-  ],
-  student: [
-    { name: '민트초코', sub: '야작할 때 필수 아이템', color: '#6B8CFF', pct: 95, trend: 'hot' },
-    { name: '블루베리', sub: 'INFP 대학생 최애', color: '#9B6FD4', pct: 82, trend: 'up' },
-    { name: '초코무스', sub: '시험기간 위로템', color: '#7B4F2E', pct: 79, trend: '' },
-    { name: '엄마는외계인', sub: '개성파 대학생 픽', color: '#FFB347', pct: 67, trend: 'up' },
-    { name: '슈팅스타', sub: '인스타 감성 No.1', color: '#C9B8E8', pct: 61, trend: '' },
-  ],
-  exam: [
-    { name: '초코무스', sub: '시험 전날 밤 1위', color: '#7B4F2E', pct: 97, trend: 'hot' },
-    { name: '민트초코', sub: '각성 효과 No.1 (느낌)', color: '#6B8CFF', pct: 89, trend: 'hot' },
-    { name: '바닐라', sub: '부담 없는 편안함', color: '#FFF0C8', pct: 73, trend: '' },
-    { name: '딸기', sub: '스트레스 해소 맛', color: '#FF8FAB', pct: 68, trend: 'up' },
-    { name: '녹차', sub: '집중력 상승 기원', color: '#A8E6CF', pct: 55, trend: '' },
-  ],
-  mbti: [
-    { name: 'INFP × 블루베리', sub: '몽환 감성 조합 1위', color: '#9B6FD4', pct: 94, trend: 'hot' },
-    { name: 'ENFP × 망고', sub: '에너지 폭발 조합', color: '#FFD951', pct: 87, trend: 'up' },
-    { name: 'INTJ × 녹차', sub: '효율 최적화 맛', color: '#A8E6CF', pct: 80, trend: '' },
-    { name: 'ESFJ × 딸기', sub: '따뜻한 관계 맛', color: '#FF8FAB', pct: 75, trend: '' },
-    { name: 'ISTP × 민트초코', sub: '독보적 고집 맛', color: '#6B8CFF', pct: 69, trend: 'up' },
-  ],
-  area: [
-    { name: '홍대 × 민트초코', sub: '홍대 민초 비율 급상승 🔥', color: '#6B8CFF', pct: 96, trend: 'hot' },
-    { name: '강남 × 뉴욕치즈케이크', sub: '강남 프리미엄 픽', color: '#F5E6CA', pct: 85, trend: '' },
-    { name: '신촌 × 초코무스', sub: '야작족 성지의 맛', color: '#7B4F2E', pct: 82, trend: 'up' },
-    { name: '건대 × 딸기', sub: '건대 대학가 1위', color: '#FF8FAB', pct: 74, trend: '' },
-    { name: '성수 × 피스타치오', sub: '힙스터 감성 픽', color: '#B5C99A', pct: 68, trend: 'up' },
-  ],
-};
-
-// ===== STATE =====
-let currentPage = 'home';
-let testState = { step: 0, scores: {} };
-let selectedFlavors = [];
-let selectedMood = '';
-
-// ===== PAGE NAVIGATION =====
-function showPage(page) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-  document.getElementById('page-' + page).classList.add('active');
-
-  const tabs = document.querySelectorAll('.nav-tab');
-  const pageIndex = ['home', 'test', 'combo', 'ranking'].indexOf(page);
-  if (tabs[pageIndex]) tabs[pageIndex].classList.add('active');
-
-  currentPage = page;
-
-  if (page === 'combo') initCombo();
-  if (page === 'ranking') showRanking('all', document.querySelector('.ranking-tab'));
-  if (page === 'test') startTest();
-}
-
-// ===== TEST =====
-function startTest() {
-  testState = { step: 0, scores: {} };
-  renderQuestion();
-}
-
-function renderQuestion() {
-  const container = document.getElementById('test-content');
-  const q = QUESTIONS[testState.step];
-
-  if (!q) {
-    showResult();
-    return;
-  }
-
-  const dots = QUESTIONS.map((_, i) => {
-    if (i < testState.step) return `<div class="progress-dot done"></div>`;
-    if (i === testState.step) return `<div class="progress-dot current"></div>`;
-    return `<div class="progress-dot"></div>`;
-  }).join('');
-
-  container.innerHTML = `
-    <div class="test-progress">${dots}</div>
-    <div class="question-card">
-      <div class="question-num">Q${testState.step + 1} / ${QUESTIONS.length}</div>
-      <div class="question-scene">${q.scene.replace(/\n/g, '<br>')}</div>
-      <div class="question-sub">${q.sub}</div>
-      <div class="answer-grid">
-        ${q.options.map((opt, i) => `
-          <button class="answer-btn" onclick="selectAnswer(${i})">
-            <span class="emoji">${opt.emoji}</span>
-            ${opt.text}
+    <!-- ===== HOME ===== -->
+    <div class="page active" id="page-home">
+      <div class="hero">
+        <div class="hero-bg-circles">
+          <div class="hero-circle"></div>
+          <div class="hero-circle"></div>
+          <div class="hero-circle"></div>
+        </div>
+        <div class="hero-badge">✨ NEW 취향 플랫폼 오픈</div>
+        <h1 class="hero-title">
+          당신은 어떤<br><span class="highlight">맛 유형</span>인가요?
+        </h1>
+        <p class="hero-sub">
+          단순히 맛을 고르는 게 아니에요.<br>
+          당신의 감정, 성격, 지금의 상태를<br>아이스크림으로 표현해 보세요.
+        </p>
+        <div class="hero-cta">
+          <button class="btn-primary" onclick="showPage('test'); startTest();">
+            🧬 취향 테스트 시작
           </button>
-        `).join('')}
-      </div>
-    </div>
-  `;
-}
-
-function selectAnswer(index) {
-  const q = QUESTIONS[testState.step];
-  const opt = q.options[index];
-
-  // highlight selected
-  const btns = document.querySelectorAll('.answer-btn');
-  btns.forEach(b => b.classList.remove('selected'));
-  btns[index].classList.add('selected');
-
-  // accumulate scores
-  Object.entries(opt.scores).forEach(([key, val]) => {
-    testState.scores[key] = (testState.scores[key] || 0) + val;
-  });
-
-  setTimeout(() => {
-    testState.step++;
-    renderQuestion();
-  }, 400);
-}
-
-function determineType() {
-  const s = testState.scores;
-  const candidates = [
-    { key: 'mint_energy', score: (s.mint || 0) + (s.energy || 0) },
-    { key: 'choco_sad', score: (s.choco || 0) + (s.sad || 0) },
-    { key: 'strawberry_social', score: (s.strawberry || 0) + (s.social || 0) },
-    { key: 'berry_emo', score: (s.berry || 0) + (s.emo || 0) },
-    { key: 'mango_social', score: (s.mango || 0) + (s.social || 0) * 0.5 },
-    { key: 'vanilla_cool', score: (s.vanilla || 0) + (s.cool || 0) },
-  ];
-  candidates.sort((a, b) => b.score - a.score);
-  return RESULT_TYPES[candidates[0].key] || RESULT_TYPES.mint_energy;
-}
-
-function showResult() {
-  const type = determineType();
-  const container = document.getElementById('test-content');
-
-  container.innerHTML = `
-    <div class="result-container">
-      <div class="result-card" style="background: ${type.gradient}">
-        <div class="result-emoji">${type.emoji}</div>
-        <div class="result-label">당신의 맛 유형</div>
-        <div class="result-type">${type.type}</div>
-        <div class="result-desc">${type.desc.replace(/\n/g, '<br>')}</div>
-        <div class="result-flavors">
-          ${type.flavors.map(f => `<div class="result-flavor-tag">🍦 ${f}</div>`).join('')}
+          <button class="btn-secondary" onclick="showPage('ranking')">
+            🔥 인기 랭킹 보기
+          </button>
         </div>
-        <div class="result-hashtags">
-          ${type.tags.map(t => `<span class="hashtag">${t}</span>`).join(' ')}
+        <div class="hero-flavors">
+          <div class="flavor-pill"><div class="dot" style="background:#6B8CFF"></div>민트초코</div>
+          <div class="flavor-pill"><div class="dot" style="background:#FF8FAB"></div>딸기</div>
+          <div class="flavor-pill"><div class="dot" style="background:#7B4F2E"></div>초코무스</div>
+          <div class="flavor-pill"><div class="dot" style="background:#FFD951"></div>망고</div>
+          <div class="flavor-pill"><div class="dot" style="background:#A8E6CF"></div>녹차</div>
+          <div class="flavor-pill"><div class="dot" style="background:#DDA0DD"></div>블루베리</div>
         </div>
+
+        <!-- Mascot Characters -->
+        <!-- ★ 왼쪽 캐릭터 이미지: 기본 베라.png 경로로 교체하세요 -->
+        <img class="mascot-left" src="./basic-vera.png" alt="스쿱 마스코트 기본" />
+        <!-- ★ 오른쪽 캐릭터 이미지: 입벌린 베라.png 경로로 교체하세요 -->
+        <img class="mascot-right" src="./smile-vera.png" alt="스쿱 마스코트 웃음" />
       </div>
-      <div class="share-section">
-        <button class="share-btn share-instagram" onclick="shareResult('instagram')">
-          📸 인스타 공유
-        </button>
-        <button class="share-btn share-copy" onclick="shareResult('copy')">
-          🔗 링크 복사
-        </button>
-        <button class="share-btn share-retry" onclick="startTest()">
-          🔄 다시 하기
-        </button>
+    </div>
+
+    <!-- ===== TEST PAGE ===== -->
+    <div class="page" id="page-test">
+      <div class="test-container" id="test-content">
+        <!-- dynamically rendered -->
       </div>
-      <button class="btn-secondary" style="width:100%;" onclick="showPage('combo')">
-        🍨 나만의 조합 만들러 가기 →
-      </button>
     </div>
-  `;
-}
 
-function shareResult(type) {
-  if (type === 'copy') {
-    navigator.clipboard.writeText('https://br-flavor.co.kr/test').catch(() => {});
-    showToast('🔗 링크가 복사되었어요!');
-  } else {
-    showToast('📸 카드 이미지를 저장하세요!');
-  }
-}
+    <!-- ===== COMBO PAGE ===== -->
+    <div class="page" id="page-combo">
+      <div class="combo-container">
+        <div class="section-header">
+          <h2 class="section-title">나만의 31 조합 🍨</h2>
+          <p class="section-sub">나만의 특별한 아이스크림 세트를 만들어 보세요</p>
+        </div>
 
-// ===== COMBO =====
-function initCombo() {
-  selectedFlavors = [];
-  selectedMood = '';
-  renderFlavorGrid();
-  document.getElementById('combo-result').classList.remove('show');
-  document.getElementById('combo-result').innerHTML = '';
-  document.getElementById('combo-name').value = '';
-  document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('selected'));
-  updateSelectedList();
-}
+        <input type="text" class="combo-name-input" id="combo-name" placeholder="조합 이름을 지어주세요 (예: 야작 생존팩)" maxlength="20">
 
-function renderFlavorGrid() {
-  const grid = document.getElementById('flavor-grid');
-  grid.innerHTML = FLAVORS.map(f => `
-    <div class="flavor-item" onclick="toggleFlavor('${f.name}')" id="fi-${f.name.replace(/\s/g,'')}">
-      <div class="ficon" style="background: ${f.color}; box-shadow: 0 2px 8px ${f.color}66;"></div>
-      <span>${f.name}</span>
+        <div class="mood-selector">
+          <div class="library-label">무드 선택</div>
+          <div class="mood-grid" id="mood-grid">
+            <button class="mood-btn" data-mood="공부/야작" onclick="selectMood(this)">
+              <span class="mood-icon">📚</span>
+              <span class="mood-name">공부/야작</span>
+            </button>
+            <button class="mood-btn" data-mood="연애/설렘" onclick="selectMood(this)">
+              <span class="mood-icon">💕</span>
+              <span class="mood-name">연애/설렘</span>
+            </button>
+            <button class="mood-btn" data-mood="힐링/위로" onclick="selectMood(this)">
+              <span class="mood-icon">🌙</span>
+              <span class="mood-name">힐링/위로</span>
+            </button>
+            <button class="mood-btn" data-mood="파티/신남" onclick="selectMood(this)">
+              <span class="mood-icon">🎉</span>
+              <span class="mood-name">파티/신남</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="flavor-library">
+          <div class="library-label">맛 선택 (최대 3개)</div>
+          <div class="flavor-grid" id="flavor-grid"></div>
+        </div>
+
+        <div class="selected-combo">
+          <div class="selected-label">🍦 나의 조합</div>
+          <div class="selected-list" id="selected-list">
+            <div style="color:#ccc; font-size:14px; padding: 8px 0;">맛을 선택해주세요...</div>
+          </div>
+        </div>
+
+        <button class="btn-primary" style="width:100%; margin-bottom: 20px;" onclick="generateComboResult()">
+          ✨ 나만의 조합 카드 만들기
+        </button>
+
+        <div class="combo-result-card" id="combo-result"></div>
+      </div>
     </div>
-  `).join('');
-}
 
-function toggleFlavor(name) {
-  if (selectedFlavors.includes(name)) {
-    selectedFlavors = selectedFlavors.filter(f => f !== name);
-  } else {
-    if (selectedFlavors.length >= 3) {
-      showToast('최대 3개까지 선택 가능해요!');
-      return;
+    <!-- ===== RANKING PAGE ===== -->
+    <div class="page" id="page-ranking">
+      <div class="ranking-container">
+        <div class="section-header">
+          <h2 class="section-title">🔥 이달의 취향 랭킹</h2>
+          <p class="section-sub">지금 가장 핫한 아이스크림 조합을 확인하세요</p>
+        </div>
+
+        <div class="ranking-tabs">
+          <button class="ranking-tab active" onclick="showRanking('all', this)">전체 인기</button>
+          <button class="ranking-tab" onclick="showRanking('student', this)">대학생 픽</button>
+          <button class="ranking-tab" onclick="showRanking('exam', this)">시험기간</button>
+          <button class="ranking-tab" onclick="showRanking('mbti', this)">MBTI별</button>
+          <button class="ranking-tab" onclick="showRanking('area', this)">지역별</button>
+        </div>
+
+        <div id="ranking-list" class="ranking-list"></div>
+      </div>
+    </div>
+
+    <!-- TOAST -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+    // ===== DATA =====
+    const FLAVORS = [
+      { name: '민트초코', color: '#6B8CFF', emoji: '💙', tags: ['야작형', '고집형'] },
+      { name: '딸기', color: '#FF8FAB', emoji: '🍓', tags: ['설렘형', '귀여운형'] },
+      { name: '초코무스', color: '#7B4F2E', emoji: '🍫', tags: ['감성형', '위로형'] },
+      { name: '망고', color: '#FFD951', emoji: '🥭', tags: ['활발형', '파티형'] },
+      { name: '녹차', color: '#A8E6CF', emoji: '🍵', tags: ['힐링형', '조용한형'] },
+      { name: '블루베리', color: '#9B6FD4', emoji: '🫐', tags: ['감성형', '몽환형'] },
+      { name: '바닐라', color: '#FFF0C8', emoji: '🤍', tags: ['기본형', '안정형'] },
+      { name: '레인보우샤벳', color: '#FF6B9D', emoji: '🌈', tags: ['파티형', '감각형'] },
+      { name: '엄마는외계인', color: '#FFB347', emoji: '👽', tags: ['개성형', '독특형'] },
+      { name: '뉴욕치즈케이크', color: '#F5E6CA', emoji: '🧀', tags: ['여유형', '감성형'] },
+      { name: '슈팅스타', color: '#C9B8E8', emoji: '⭐', tags: ['몽환형', '이상형'] },
+      { name: '피스타치오', color: '#B5C99A', emoji: '🌿', tags: ['힐링형', '고급형'] },
+    ];
+
+    const QUESTIONS = [
+      {
+        scene: '시험기간 새벽 2시.\n당신의 상태는?',
+        sub: '솔직하게 골라봐요 👀',
+        options: [
+          { emoji: '☕', text: '일단 카페인', scores: { mint: 2, energy: 2 } },
+          { emoji: '💀', text: '이미 포기함', scores: { choco: 2, sad: 2 } },
+          { emoji: '🌙', text: '감성 터짐', scores: { berry: 2, emo: 2 } },
+          { emoji: '📱', text: '친구랑 떠드는 중', scores: { mango: 2, social: 2 } },
+        ]
+      },
+      {
+        scene: '연애 시작 직전의 나는?',
+        sub: '연애 초기 당신의 타입은요',
+        options: [
+          { emoji: '💘', text: '설렘 폭주', scores: { strawberry: 2, social: 2 } },
+          { emoji: '🔍', text: '의미부여 중', scores: { berry: 2, emo: 2 } },
+          { emoji: '😎', text: '아무렇지 않은 척', scores: { vanilla: 2, cool: 2 } },
+          { emoji: '🏃', text: '도망가고 싶음', scores: { mint: 2, cool: 2 } },
+        ]
+      },
+      {
+        scene: '친구가 갑자기 "나 오늘 힘들어"\n라고 문자 왔을 때',
+        sub: '당신의 첫 반응은?',
+        options: [
+          { emoji: '🎤', text: '바로 전화', scores: { mango: 2, social: 2 } },
+          { emoji: '💬', text: '위로 장문 문자', scores: { choco: 2, emo: 2 } },
+          { emoji: '🍦', text: '아이스크림 사러 가자', scores: { strawberry: 2, social: 2 } },
+          { emoji: '👀', text: '일단 자세히 물어봄', scores: { green: 2, cool: 2 } },
+        ]
+      },
+      {
+        scene: '나에게 주말 오전은?',
+        sub: '이상적인 주말 아침 장면',
+        options: [
+          { emoji: '🛌', text: '몇 시간이라도 더 자기', scores: { choco: 2, sad: 2 } },
+          { emoji: '☀️', text: '일찍 일어나 계획 실행', scores: { mango: 2, energy: 2 } },
+          { emoji: '📺', text: '유튜브/넷플 정주행', scores: { berry: 2, emo: 2 } },
+          { emoji: '🚶', text: '가볍게 산책 나가기', scores: { green: 2, cool: 2 } },
+        ]
+      },
+      {
+        scene: '단체 과제에서 나의 포지션은?',
+        sub: '솔직히 어떤 스타일이에요?',
+        options: [
+          { emoji: '👑', text: '팀장 자처함', scores: { mango: 2, energy: 2 } },
+          { emoji: '🎨', text: 'PPT 혼자 다 만듦', scores: { emo: 2, berry: 2 } },
+          { emoji: '🔧', text: '묵묵히 내 파트만', scores: { cool: 2, vanilla: 2 } },
+          { emoji: '🔥', text: '마감 전날 폭발', scores: { mint: 2, energy: 2 } },
+        ]
+      },
+    ];
+
+    const RESULT_TYPES = {
+      mint_energy: {
+        emoji: '🌿',
+        type: '야작 생존 민트형',
+        desc: '새벽에 살아나는 타입.\n피곤하다면서 결국 민트초코 먹으며 과제함.\n집중력은 새벽 12시부터 시작됩니다.',
+        flavors: ['민트초코', '엄마는외계인', '초코무스'],
+        tags: ['#시험기간생존러', '#민초과몰입형', '#새벽감성맛'],
+        gradient: 'linear-gradient(135deg, #43a89a, #2b6cb0)',
+      },
+      choco_sad: {
+        emoji: '🍫',
+        type: '새벽 감성 초코형',
+        desc: '모든 감정을 초콜릿으로 해결하는 타입.\n힘들 땐 초코, 기쁠 땐 초코, 이유 없어도 초코.\n당신에게 초코는 종교입니다.',
+        flavors: ['초코무스', '뉴욕치즈케이크', '블루베리'],
+        tags: ['#초코신봉자', '#감성과몰입형', '#위로맛필요'],
+        gradient: 'linear-gradient(135deg, #7B4F2E, #4a1942)',
+      },
+      strawberry_social: {
+        emoji: '🍓',
+        type: '설렘 폭주 딸기형',
+        desc: '에너지가 넘치고 사람을 좋아하는 타입.\n친구 많고, 약속 많고, 연락 많음.\n딸기처럼 새콤달콤한 사람.',
+        flavors: ['딸기', '레인보우샤벳', '망고'],
+        tags: ['#인싸감성', '#연락왕', '#설렘중독'],
+        gradient: 'linear-gradient(135deg, #FF8FAB, #FF6B9D)',
+      },
+      berry_emo: {
+        emoji: '🫐',
+        type: '몽환 감성 블루베리형',
+        desc: '머릿속에 항상 무언가 생각하는 타입.\nINFP 기질, 의미 부여 전문가.\n혼자만의 세계가 가장 아름답습니다.',
+        flavors: ['블루베리', '슈팅스타', '녹차'],
+        tags: ['#감성INFP', '#의미부여장인', '#혼자가편한'],
+        gradient: 'linear-gradient(135deg, #9B6FD4, #4776E6)',
+      },
+      mango_social: {
+        emoji: '🥭',
+        type: '에너지 MAX 망고형',
+        desc: '항상 밝고 에너지 넘치는 타입.\n분위기 메이커, 파티의 주인공.\n무슨 일이든 긍정적으로 바라봅니다.',
+        flavors: ['망고', '레인보우샤벳', '딸기'],
+        tags: ['#분위기메이커', '#에너자이저', '#긍정왕'],
+        gradient: 'linear-gradient(135deg, #FFD951, #FF8C42)',
+      },
+      vanilla_cool: {
+        emoji: '🤍',
+        type: '쿨내나는 바닐라형',
+        desc: '감정 기복 없고 안정적인 타입.\n뭐든 처음에는 신중하게.\n알고 보면 엄청 따뜻한 사람.',
+        flavors: ['바닐라', '녹차', '뉴욕치즈케이크'],
+        tags: ['#겉바속촉', '#쿨내나는척', '#사실따뜻함'],
+        gradient: 'linear-gradient(135deg, #8EC5FC, #E0C3FC)',
+      },
+    };
+
+    const RANKING_DATA = {
+      all: [
+        { name: '민트초코', sub: '민트초코 마니아 전국 연합', color: '#6B8CFF', pct: 92, trend: 'hot' },
+        { name: '딸기', sub: '사계절 내내 인기 1위', color: '#FF8FAB', pct: 88, trend: 'up' },
+        { name: '초코무스', sub: '감성 소비자 압도적 선택', color: '#7B4F2E', pct: 76, trend: '' },
+        { name: '망고', sub: '여름 시즌 급상승', color: '#FFD951', pct: 71, trend: 'up' },
+        { name: '뉴욕치즈케이크', sub: '어른들의 최애', color: '#F5E6CA', pct: 65, trend: '' },
+      ],
+      student: [
+        { name: '민트초코', sub: '야작할 때 필수 아이템', color: '#6B8CFF', pct: 95, trend: 'hot' },
+        { name: '블루베리', sub: 'INFP 대학생 최애', color: '#9B6FD4', pct: 82, trend: 'up' },
+        { name: '초코무스', sub: '시험기간 위로템', color: '#7B4F2E', pct: 79, trend: '' },
+        { name: '엄마는외계인', sub: '개성파 대학생 픽', color: '#FFB347', pct: 67, trend: 'up' },
+        { name: '슈팅스타', sub: '인스타 감성 No.1', color: '#C9B8E8', pct: 61, trend: '' },
+      ],
+      exam: [
+        { name: '초코무스', sub: '시험 전날 밤 1위', color: '#7B4F2E', pct: 97, trend: 'hot' },
+        { name: '민트초코', sub: '각성 효과 No.1 (느낌)', color: '#6B8CFF', pct: 89, trend: 'hot' },
+        { name: '바닐라', sub: '부담 없는 편안함', color: '#FFF0C8', pct: 73, trend: '' },
+        { name: '딸기', sub: '스트레스 해소 맛', color: '#FF8FAB', pct: 68, trend: 'up' },
+        { name: '녹차', sub: '집중력 상승 기원', color: '#A8E6CF', pct: 55, trend: '' },
+      ],
+      mbti: [
+        { name: 'INFP × 블루베리', sub: '몽환 감성 조합 1위', color: '#9B6FD4', pct: 94, trend: 'hot' },
+        { name: 'ENFP × 망고', sub: '에너지 폭발 조합', color: '#FFD951', pct: 87, trend: 'up' },
+        { name: 'INTJ × 녹차', sub: '효율 최적화 맛', color: '#A8E6CF', pct: 80, trend: '' },
+        { name: 'ESFJ × 딸기', sub: '따뜻한 관계 맛', color: '#FF8FAB', pct: 75, trend: '' },
+        { name: 'ISTP × 민트초코', sub: '독보적 고집 맛', color: '#6B8CFF', pct: 69, trend: 'up' },
+      ],
+      area: [
+        { name: '홍대 × 민트초코', sub: '홍대 민초 비율 급상승 🔥', color: '#6B8CFF', pct: 96, trend: 'hot' },
+        { name: '강남 × 뉴욕치즈케이크', sub: '강남 프리미엄 픽', color: '#F5E6CA', pct: 85, trend: '' },
+        { name: '신촌 × 초코무스', sub: '야작족 성지의 맛', color: '#7B4F2E', pct: 82, trend: 'up' },
+        { name: '건대 × 딸기', sub: '건대 대학가 1위', color: '#FF8FAB', pct: 74, trend: '' },
+        { name: '성수 × 피스타치오', sub: '힙스터 감성 픽', color: '#B5C99A', pct: 68, trend: 'up' },
+      ],
+    };
+
+    // ===== STATE =====
+    let currentPage = 'home';
+    let testState = { step: 0, scores: {} };
+    let selectedFlavors = [];
+    let selectedMood = '';
+
+    // ===== PAGE NAVIGATION =====
+    function showPage(page) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+      document.getElementById('page-' + page).classList.add('active');
+
+      const tabs = document.querySelectorAll('.nav-tab');
+      const pageIndex = ['home', 'test', 'combo', 'ranking'].indexOf(page);
+      if (tabs[pageIndex]) tabs[pageIndex].classList.add('active');
+
+      currentPage = page;
+
+      if (page === 'combo') initCombo();
+      if (page === 'ranking') showRanking('all', document.querySelector('.ranking-tab'));
+      if (page === 'test') startTest();
     }
-    selectedFlavors.push(name);
-  }
 
-  const id = 'fi-' + name.replace(/\s/g, '');
-  document.getElementById(id).classList.toggle('selected', selectedFlavors.includes(name));
-  updateSelectedList();
-}
+    // ===== TEST =====
+    function startTest() {
+      testState = { step: 0, scores: {} };
+      renderQuestion();
+    }
 
-function updateSelectedList() {
-  const list = document.getElementById('selected-list');
-  if (selectedFlavors.length === 0) {
-    list.innerHTML = `<div style="color:#ccc; font-size:14px; padding: 8px 0;">맛을 선택해주세요...</div>`;
-    return;
-  }
-  list.innerHTML = selectedFlavors.map(name => {
-    const f = FLAVORS.find(fl => fl.name === name);
-    return `<div class="selected-tag" style="background: ${f ? f.color : '#F2557A'}">
-      <span>${f ? f.emoji : '🍦'} ${name}</span>
-      <span class="remove-tag" onclick="toggleFlavor('${name}')">×</span>
-    </div>`;
-  }).join('');
-}
+    function renderQuestion() {
+      const container = document.getElementById('test-content');
+      const q = QUESTIONS[testState.step];
 
-function selectMood(btn) {
-  document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('selected'));
-  btn.classList.add('selected');
-  selectedMood = btn.dataset.mood;
-}
+      if (!q) {
+        showResult();
+        return;
+      }
 
-function generateComboResult() {
-  const name = document.getElementById('combo-name').value.trim();
-  if (!name) { showToast('조합 이름을 입력해주세요!'); return; }
-  if (selectedFlavors.length === 0) { showToast('맛을 하나 이상 선택해주세요!'); return; }
-  if (!selectedMood) { showToast('무드를 선택해주세요!'); return; }
+      const dots = QUESTIONS.map((_, i) => {
+        if (i < testState.step) return `<div class="progress-dot done"></div>`;
+        if (i === testState.step) return `<div class="progress-dot current"></div>`;
+        return `<div class="progress-dot"></div>`;
+      }).join('');
 
-  const gradients = {
-    '공부/야작': 'linear-gradient(135deg, #43a89a, #2b6cb0)',
-    '연애/설렘': 'linear-gradient(135deg, #FF8FAB, #FF6B9D)',
-    '힐링/위로': 'linear-gradient(135deg, #9B6FD4, #4776E6)',
-    '파티/신남': 'linear-gradient(135deg, #FFD951, #FF8C42)',
-  };
-
-  const icons = {
-    '공부/야작': '📚', '연애/설렘': '💕',
-    '힐링/위로': '🌙', '파티/신남': '🎉',
-  };
-
-  const resultCard = document.getElementById('combo-result');
-  const flavorEmojis = selectedFlavors.map(n => {
-    const f = FLAVORS.find(fl => fl.name === n);
-    return f ? f.emoji : '🍦';
-  });
-
-  resultCard.style.background = gradients[selectedMood] || 'linear-gradient(135deg, #F2557A, #FF8C42)';
-  resultCard.innerHTML = `
-    <div style="position:absolute; top:-40px; right:-40px; width:120px; height:120px; border-radius:50%; background:rgba(255,255,255,0.1);"></div>
-    <div style="font-size:48px; margin-bottom:12px;">${icons[selectedMood] || '🍦'}</div>
-    <div style="font-size:11px; letter-spacing:3px; opacity:0.7; margin-bottom:10px; text-transform:uppercase;">나만의 조합</div>
-    <div style="font-family:'Black Han Sans',sans-serif; font-size:28px; margin-bottom:20px;">${name}</div>
-    <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-bottom:24px;">
-      ${selectedFlavors.map((n, i) => `
-        <div style="background:rgba(255,255,255,0.2); padding:10px 18px; border-radius:50px; font-size:14px; font-weight:600; border:1.5px solid rgba(255,255,255,0.3);">
-          ${flavorEmojis[i]} ${n}
+      container.innerHTML = `
+        <div class="test-progress">${dots}</div>
+        <div class="question-card">
+          <div class="question-num">Q${testState.step + 1} / ${QUESTIONS.length}</div>
+          <div class="question-scene">${q.scene.replace(/\n/g, '<br>')}</div>
+          <div class="question-sub">${q.sub}</div>
+          <div class="answer-grid">
+            ${q.options.map((opt, i) => `
+              <button class="answer-btn" onclick="selectAnswer(${i})">
+                <span class="emoji">${opt.emoji}</span>
+                ${opt.text}
+              </button>
+            `).join('')}
+          </div>
         </div>
-      `).join('')}
-    </div>
-    <div style="font-size:13px; opacity:0.75; margin-bottom:24px;">무드: ${selectedMood} • ${new Date().getMonth() + 1}월 한정 조합</div>
-    <button class="share-btn share-copy" style="margin:0 auto;" onclick="showToast('🔗 조합 링크 복사됨!')">
-      🔗 공유하기
-    </button>
-  `;
-  resultCard.classList.add('show');
-  resultCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
-}
+      `;
+    }
 
-// ===== RANKING =====
-function showRanking(category, clickedTab) {
-  if (clickedTab) {
-    document.querySelectorAll('.ranking-tab').forEach(t => t.classList.remove('active'));
-    clickedTab.classList.add('active');
-  }
+    function selectAnswer(index) {
+      const q = QUESTIONS[testState.step];
+      const opt = q.options[index];
 
-  const data = RANKING_DATA[category] || RANKING_DATA.all;
-  const container = document.getElementById('ranking-list');
+      // highlight selected
+      const btns = document.querySelectorAll('.answer-btn');
+      btns.forEach(b => b.classList.remove('selected'));
+      btns[index].classList.add('selected');
 
-  const rankLabels = ['gold', 'silver', 'bronze', 'other', 'other'];
-  const rankSymbols = ['🥇', '🥈', '🥉', '4', '5'];
+      // accumulate scores
+      Object.entries(opt.scores).forEach(([key, val]) => {
+        testState.scores[key] = (testState.scores[key] || 0) + val;
+      });
 
-  container.innerHTML = data.map((item, i) => `
-    <div class="rank-item" style="animation-delay: ${i * 0.08}s">
-      <div class="rank-number ${rankLabels[i]}">${rankSymbols[i]}</div>
-      <div class="rank-flavor-dot" style="background: ${item.color}; box-shadow: 0 4px 12px ${item.color}66;"></div>
-      <div class="rank-info">
-        <div class="rank-name">${item.name}</div>
-        <div class="rank-sub">${item.sub}</div>
-      </div>
-      ${item.trend ? `<div class="trending-badge ${item.trend}">${item.trend === 'hot' ? '🔥 HOT' : '↑ UP'}</div>` : ''}
-      <div class="rank-bar-wrapper">
-        <div class="rank-bar" style="width: ${item.pct}%"></div>
-      </div>
-      <div class="rank-percent">${item.pct}%</div>
-    </div>
-  `).join('');
-}
+      setTimeout(() => {
+        testState.step++;
+        renderQuestion();
+      }, 400);
+    }
 
-// ===== TOAST =====
-function showToast(msg) {
-  const toast = document.getElementById('toast');
-  toast.textContent = msg;
-  toast.classList.add('show');
-  setTimeout(() => toast.classList.remove('show'), 2500);
-}
+    function determineType() {
+      const s = testState.scores;
+      const candidates = [
+        { key: 'mint_energy', score: (s.mint || 0) + (s.energy || 0) },
+        { key: 'choco_sad', score: (s.choco || 0) + (s.sad || 0) },
+        { key: 'strawberry_social', score: (s.strawberry || 0) + (s.social || 0) },
+        { key: 'berry_emo', score: (s.berry || 0) + (s.emo || 0) },
+        { key: 'mango_social', score: (s.mango || 0) + (s.social || 0) * 0.5 },
+        { key: 'vanilla_cool', score: (s.vanilla || 0) + (s.cool || 0) },
+      ];
+      candidates.sort((a, b) => b.score - a.score);
+      return RESULT_TYPES[candidates[0].key] || RESULT_TYPES.mint_energy;
+    }
 
-// ===== INIT =====
-document.addEventListener('DOMContentLoaded', () => {
-  showRanking('all', null);
-});
-</script>
-</body>
+    function showResult() {
+      const type = determineType();
+      const container = document.getElementById('test-content');
+
+      container.innerHTML = `
+        <div class="result-container">
+          <div class="result-card" style="background: ${type.gradient}">
+            <div class="result-emoji">${type.emoji}</div>
+            <div class="result-label">당신의 맛 유형</div>
+            <div class="result-type">${type.type}</div>
+            <div class="result-desc">${type.desc.replace(/\n/g, '<br>')}</div>
+            <div class="result-flavors">
+              ${type.flavors.map(f => `<div class="result-flavor-tag">🍦 ${f}</div>`).join('')}
+            </div>
+            <div class="result-hashtags">
+              ${type.tags.map(t => `<span class="hashtag">${t}</span>`).join(' ')}
+            </div>
+          </div>
+          <div class="share-section">
+            <button class="share-btn share-instagram" onclick="shareResult('instagram')">
+              📸 인스타 공유
+            </button>
+            <button class="share-btn share-copy" onclick="shareResult('copy')">
+              🔗 링크 복사
+            </button>
+            <button class="share-btn share-retry" onclick="startTest()">
+              🔄 다시 하기
+            </button>
+          </div>
+          <button class="btn-secondary" style="width:100%;" onclick="showPage('combo')">
+            🍨 나만의 조합 만들러 가기 →
+          </button>
+        </div>
+      `;
+    }
+
+    function shareResult(type) {
+      if (type === 'copy') {
+        navigator.clipboard.writeText('https://br-flavor.co.kr/test').catch(() => {});
+        showToast('🔗 링크가 복사되었어요!');
+      } else {
+        showToast('📸 카드 이미지를 저장하세요!');
+      }
+    }
+
+    // ===== COMBO =====
+    function initCombo() {
+      selectedFlavors = [];
+      selectedMood = '';
+      renderFlavorGrid();
+      document.getElementById('combo-result').classList.remove('show');
+      document.getElementById('combo-result').innerHTML = '';
+      document.getElementById('combo-name').value = '';
+      document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('selected'));
+      updateSelectedList();
+    }
+
+    function renderFlavorGrid() {
+      const grid = document.getElementById('flavor-grid');
+      grid.innerHTML = FLAVORS.map(f => `
+        <div class="flavor-item" onclick="toggleFlavor('${f.name}')" id="fi-${f.name.replace(/\s/g,'')}">
+          <div class="ficon" style="background: ${f.color}; box-shadow: 0 2px 8px ${f.color}66;"></div>
+          <span>${f.name}</span>
+        </div>
+      `).join('');
+    }
+
+    function toggleFlavor(name) {
+      if (selectedFlavors.includes(name)) {
+        selectedFlavors = selectedFlavors.filter(f => f !== name);
+      } else {
+        if (selectedFlavors.length >= 3) {
+          showToast('최대 3개까지 선택 가능해요!');
+          return;
+        }
+        selectedFlavors.push(name);
+      }
+
+      const id = 'fi-' + name.replace(/\s/g, '');
+      document.getElementById(id).classList.toggle('selected', selectedFlavors.includes(name));
+      updateSelectedList();
+    }
+
+    function updateSelectedList() {
+      const list = document.getElementById('selected-list');
+      if (selectedFlavors.length === 0) {
+        list.innerHTML = `<div style="color:#ccc; font-size:14px; padding: 8px 0;">맛을 선택해주세요...</div>`;
+        return;
+      }
+      list.innerHTML = selectedFlavors.map(name => {
+        const f = FLAVORS.find(fl => fl.name === name);
+        return `<div class="selected-tag" style="background: ${f ? f.color : '#F2557A'}">
+          <span>${f ? f.emoji : '🍦'} ${name}</span>
+          <span class="remove-tag" onclick="toggleFlavor('${name}')">×</span>
+        </div>`;
+      }).join('');
+    }
+
+    function selectMood(btn) {
+      document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      selectedMood = btn.dataset.mood;
+    }
+
+    function generateComboResult() {
+      const name = document.getElementById('combo-name').value.trim();
+      if (!name) { showToast('조합 이름을 입력해주세요!'); return; }
+      if (selectedFlavors.length === 0) { showToast('맛을 하나 이상 선택해주세요!'); return; }
+      if (!selectedMood) { showToast('무드를 선택해주세요!'); return; }
+
+      const gradients = {
+        '공부/야작': 'linear-gradient(135deg, #43a89a, #2b6cb0)',
+        '연애/설렘': 'linear-gradient(135deg, #FF8FAB, #FF6B9D)',
+        '힐링/위로': 'linear-gradient(135deg, #9B6FD4, #4776E6)',
+        '파티/신남': 'linear-gradient(135deg, #FFD951, #FF8C42)',
+      };
+
+      const icons = {
+        '공부/야작': '📚', '연애/설렘': '💕',
+        '힐링/위로': '🌙', '파티/신남': '🎉',
+      };
+
+      const resultCard = document.getElementById('combo-result');
+      const flavorEmojis = selectedFlavors.map(n => {
+        const f = FLAVORS.find(fl => fl.name === n);
+        return f ? f.emoji : '🍦';
+      });
+
+      resultCard.style.background = gradients[selectedMood] || 'linear-gradient(135deg, #F2557A, #FF8C42)';
+      resultCard.innerHTML = `
+        <div style="position:absolute; top:-40px; right:-40px; width:120px; height:120px; border-radius:50%; background:rgba(255,255,255,0.1);"></div>
+        <div style="font-size:48px; margin-bottom:12px;">${icons[selectedMood] || '🍦'}</div>
+        <div style="font-size:11px; letter-spacing:3px; opacity:0.7; margin-bottom:10px; text-transform:uppercase;">나만의 조합</div>
+        <div style="font-family:'Black Han Sans',sans-serif; font-size:28px; margin-bottom:20px;">${name}</div>
+        <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-bottom:24px;">
+          ${selectedFlavors.map((n, i) => `
+            <div style="background:rgba(255,255,255,0.2); padding:10px 18px; border-radius:50px; font-size:14px; font-weight:600; border:1.5px solid rgba(255,255,255,0.3);">
+              ${flavorEmojis[i]} ${n}
+            </div>
+          `).join('')}
+        </div>
+        <div style="font-size:13px; opacity:0.75; margin-bottom:24px;">무드: ${selectedMood} • ${new Date().getMonth() + 1}월 한정 조합</div>
+        <button class="share-btn share-copy" style="margin:0 auto;" onclick="showToast('🔗 조합 링크 복사됨!')">
+          🔗 공유하기
+        </button>
+      `;
+      resultCard.classList.add('show');
+      resultCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    // ===== RANKING =====
+    function showRanking(category, clickedTab) {
+      if (clickedTab) {
+        document.querySelectorAll('.ranking-tab').forEach(t => t.classList.remove('active'));
+        clickedTab.classList.add('active');
+      }
+
+      const data = RANKING_DATA[category] || RANKING_DATA.all;
+      const container = document.getElementById('ranking-list');
+
+      const rankLabels = ['gold', 'silver', 'bronze', 'other', 'other'];
+      const rankSymbols = ['🥇', '🥈', '🥉', '4', '5'];
+
+      container.innerHTML = data.map((item, i) => `
+        <div class="rank-item" style="animation-delay: ${i * 0.08}s">
+          <div class="rank-number ${rankLabels[i]}">${rankSymbols[i]}</div>
+          <div class="rank-flavor-dot" style="background: ${item.color}; box-shadow: 0 4px 12px ${item.color}66;"></div>
+          <div class="rank-info">
+            <div class="rank-name">${item.name}</div>
+            <div class="rank-sub">${item.sub}</div>
+          </div>
+          ${item.trend ? `<div class="trending-badge ${item.trend}">${item.trend === 'hot' ? '🔥 HOT' : '↑ UP'}</div>` : ''}
+          <div class="rank-bar-wrapper">
+            <div class="rank-bar" style="width: ${item.pct}%"></div>
+          </div>
+          <div class="rank-percent">${item.pct}%</div>
+        </div>
+      `).join('');
+    }
+
+    // ===== TOAST =====
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2500);
+    }
+
+    // ===== INIT =====
+    document.addEventListener('DOMContentLoaded', () => {
+      showRanking('all', null);
+    });
+    </script>
+  </body>
 </html>
