@@ -1619,16 +1619,28 @@
     }
 
     function saveComboCard() {
-      const card = document.getElementById('combo-result');
+      const wrapper = document.getElementById('combo-result');
+      if (!wrapper) return;
+      // 실제 카드 이미지가 있는 내부 div (버튼 제외)
+      const card = wrapper.querySelector('div');
       if (!card) return;
       showToast('💾 저장 중...');
-      html2canvas(card, { useCORS: true, scale: 2, backgroundColor: null }).then(canvas => {
+      html2canvas(card, {
+        useCORS: true,
+        scale: 2,
+        backgroundColor: null,
+        logging: false,
+        allowTaint: true,
+      }).then(canvas => {
         const a = document.createElement('a');
         a.download = '나만의_31_조합카드.png';
         a.href = canvas.toDataURL('image/png');
         a.click();
         showToast('✅ 카드가 저장되었어요!');
-      }).catch(() => showToast('❌ 저장에 실패했어요'));
+      }).catch(e => {
+        console.error(e);
+        showToast('❌ 저장에 실패했어요');
+      });
     }
 
     // ===== COMBO =====
